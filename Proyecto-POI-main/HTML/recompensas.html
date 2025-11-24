@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recompensas | QuinielaZo</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../CSS/Styles.css">
     <style>
         /* Estilos extra para diferenciar completadas */
@@ -13,55 +13,76 @@
             border-left: 4px solid #4CAF50;
             opacity: 0.8;
         }
+        
+        /* --- ESTILOS DE LA INSIGNIA Y ANIMACIÓN "PLIKS" --- */
         .insignia-box {
             position: relative;
             background-size: cover;
             background-position: center;
+            border-radius: 12px; /* Bordes redondeados para que se vea mejor */
+            
+            /* Esta es la clave del efecto "Pliks" (rebote elástico) */
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55), box-shadow 0.3s ease;
         }
+
+        /* Estado HOVER: Cuando el mouse se pone encima */
+        .insignia-box:hover {
+            /* Crece un 15% y se levanta un poquito */
+            transform: scale(1.15) translateY(-5px); 
+            /* Asegura que quede por encima de las otras insignias */
+            z-index: 50; 
+            /* Sombra profunda para dar efecto 3D de que sobresale */
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); 
+            cursor: pointer;
+        }
+
+        /* Estilos para insignias bloqueadas/obtenidas */
         .insignia-locked {
-            filter: grayscale(100%);
-            opacity: 0.5;
+            filter: grayscale(100%) brightness(0.7); /* Más oscura si está bloqueada */
+            opacity: 0.7;
         }
         .insignia-obtained {
             border: 2px solid #ffd700;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            /* Brillo dorado inicial */
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); 
         }
 
-        /* --- Tooltip Mejorado --- */
+        /* Ajuste especial para el HOVER en insignias DORADAS (obtenidas) 
+           Combina el brillo dorado con la sombra 3D */
+        .insignia-box.insignia-obtained:hover {
+             box-shadow: 0 0 25px rgba(255, 215, 0, 1), 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+
+        /* --- Tooltip Mejorado (El código que te di antes) --- */
         .insignia-tooltip {
             position: absolute;
-            bottom: 115%; /* Lo colocamos ARRIBA de la insignia */
+            bottom: 120%; /* Un poco más arriba por el rebote */
             left: 50%;
-            transform: translateX(-50%) scale(0.8); /* Inicia un poco más pequeño */
-            
-            /* Estilo visual */
-            background: rgba(20, 20, 20, 0.95); /* Fondo casi negro */
-            color: #ffd700; /* Texto Dorado */
-            border: 1px solid rgba(255, 215, 0, 0.3); /* Borde dorado sutil */
+            transform: translateX(-50%) scale(0.8); 
+            background: rgba(20, 20, 20, 0.95); 
+            color: #ffd700; 
+            border: 1px solid rgba(255, 215, 0, 0.3); 
             padding: 8px 14px;
             border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Sombra elegante */
-            
-            /* Tipografía */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); 
             font-family: 'Poppins', sans-serif;
             font-size: 0.85rem;
             font-weight: 500;
             white-space: nowrap;
             letter-spacing: 0.5px;
-            
-            /* Animación */
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Efecto "rebote" suave */
+            /* El tooltip también tiene su propio rebote suave */
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); 
             z-index: 100;
-            pointer-events: none; /* Evita que el tooltip estorbe al mouse */
+            pointer-events: none; 
         }
 
-        /* Triangulito (flecha) que apunta hacia abajo */
         .insignia-tooltip::after {
             content: '';
             position: absolute;
-            top: 100%; /* Justo debajo del tooltip */
+            top: 100%; 
             left: 50%;
             margin-left: -6px;
             border-width: 6px;
@@ -69,12 +90,11 @@
             border-color: rgba(20, 20, 20, 0.95) transparent transparent transparent;
         }
 
-        /* Estado Hover (Cuando pasas el mouse) */
         .insignia-box:hover .insignia-tooltip {
             opacity: 1;
             visibility: visible;
-            bottom: 125%; /* Se eleva un poquito al aparecer */
-            transform: translateX(-50%) scale(1); /* Crece a su tamaño normal */
+            bottom: 135%; /* Se ajusta la posición final */
+            transform: translateX(-50%) scale(1); 
         }
     </style>
 </head>
