@@ -5,7 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil | QuinielaZo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../CSS/Styles.css">
+    <style>
+        /* Estilo específico para el contador animado */
+        .cifra-animada {
+            font-weight: bold;
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+    </style>
 </head>
 
 <body>
@@ -47,6 +57,7 @@
                 <div class="perfil-campo"><label>Correo electrónico:</label>
                     <div id="perfil-correo">Cargando...</div>
                 </div>
+                
                 <div class="perfil-campo perfil-campo-inline">
                     <div><label>Edad:</label>
                         <div id="perfil-edad">...</div>
@@ -55,71 +66,136 @@
                         <div id="perfil-fecha-nacimiento">Cargando...</div>
                     </div>
                 </div>
+
+                <div class="perfil-campo">
+                    <label>Puntos Totales:</label>
+                    <div id="perfil-puntos" class="perfil-input perfil-input-largo cifra-animada">0</div>
+                </div>
+
+                <div class="perfil-campo">
+                    <label>Mis Diamantes 💎:</label>
+                    <div id="perfil-diamantes" class="perfil-input perfil-input-largo cifra-animada" 
+                         style="color: #00e676; border-color: #00e676; text-shadow: 0 0 10px rgba(0, 230, 118, 0.3);">
+                        0
+                    </div>
+                </div>
             </div>
         </section>
-        <a href="Inicio.html">
+        
+        <a href="#" id="logout-button-link">
             <button id="logout-button" class="boton-cerrar-sesion">Cerrar Sesión</button>
         </a>
     </main>
 
-<script>
-document.addEventListener('DOMContentLoaded', async () => {
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
-        alert("No has iniciado sesión.");
-        window.location.href = 'inicio.html';
-        return;
-    }
+    <footer>
+        <div class="footerLinks">
+            <a href="#">Contacto</a>
+            <a href="#">Aviso de Privacidad</a>
+            <a href="#">Términos y Condiciones</a>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2026 QuinielaZo. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
-    try {
-        const res = await fetch(`http://172.20.10.2:3000/profile/${userId}`);
-        if (!res.ok) throw new Error('Error al cargar perfil');
+    <script>
+        // Definición dinámica de la IP
+        const IP_LOCAL = "172.20.10.2"; 
+        const SERVER_URL = window.location.hostname === "localhost"
+            ? "http://localhost:3000"
+            : `http://${IP_LOCAL}:3000`;
 
-        const data = await res.json();
+        // Función para animar el conteo de números
+        function animarCifra(idElemento, valorFinal) {
+            const elemento = document.getElementById(idElemento);
+            const valorInicio = 0;
+            const duracion = 1500; // 1.5 segundos de animación
+            const frames = 60;
+            // Si el valor final es 0, no hacemos cálculo
+            if (valorFinal === 0) {
+                elemento.textContent = 0;
+                return;
+            }
+            const incremento = (valorFinal - valorInicio) / (duracion / 1000 * frames);
+            
+            let valorActual = valorInicio;
+            
+            const intervalo = setInterval(() => {
+                valorActual += incremento;
+                if (valorActual >= valorFinal) {
+                    valorActual = valorFinal;
+                    clearInterval(intervalo);
+                    // Efecto final de "pop" cuando termina de contar
+                    elemento.style.transform = "scale(1.2)";
+                    setTimeout(() => elemento.style.transform = "scale(1)", 200);
+                }
+                elemento.textContent = Math.floor(valorActual);
+            }, 1000 / frames);
+        }
 
-        document.getElementById('perfil-nombre').textContent = data.nombres;
-        document.getElementById('perfil-apellido').textContent = data.apellidos;
-        document.getElementById('perfil-usuario').textContent = data.usuario;
-        document.getElementById('perfil-correo').textContent = data.correo;
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userId = localStorage.getItem('userId');
+            if (!userId) {
+                alert("No has iniciado sesión.");
+                window.location.href = 'inicio.html';
+                return;
+            }
 
-        document.getElementById('perfil-img').src = data.foto || '../Resources/Imagenes/IconImage.jpg';
+            try {
+                const res = await fetch(`${SERVER_URL}/profile/${userId}`);
+                if (!res.ok) throw new Error('Error al cargar perfil');
 
-        const fecha = new Date(data.fechaNacimiento);
-        const hoy = new Date();
-        let edad = hoy.getFullYear() - fecha.getFullYear();
-        if (hoy.getMonth() < fecha.getMonth() || (hoy.getMonth() === fecha.getMonth() && hoy.getDate() < fecha.getDate())) edad--;
-        document.getElementById('perfil-edad').textContent = edad;
-        document.getElementById('perfil-fecha-nacimiento').textContent = fecha.toLocaleDateString('es-ES');
+                const data = await res.json();
 
-    } catch (err) {
-        console.error(err);
-        alert('No se pudieron cargar los datos del perfil.');
-    }
-});
+                // Llenar datos de texto
+                document.getElementById('perfil-nombre').textContent = data.nombres;
+                document.getElementById('perfil-apellido').textContent = data.apellidos;
+                document.getElementById('perfil-usuario').textContent = data.usuario;
+                document.getElementById('perfil-correo').textContent = data.correo;
+                document.getElementById('perfil-img').src = data.foto || '../Resources/Imagenes/IconImage.jpg';
 
-// --- LOGOUT ---
-document.getElementById('logout-button').addEventListener('click', async () => {
-    const userId = localStorage.getItem('userId');
-    if (!userId) return window.location.href = 'inicio.html';
+                // Calcular edad
+                const fecha = new Date(data.fechaNacimiento);
+                const hoy = new Date();
+                let edad = hoy.getFullYear() - fecha.getFullYear();
+                if (hoy.getMonth() < fecha.getMonth() || (hoy.getMonth() === fecha.getMonth() && hoy.getDate() < fecha.getDate())) edad--;
+                document.getElementById('perfil-edad').textContent = edad;
+                document.getElementById('perfil-fecha-nacimiento').textContent = fecha.toLocaleDateString('es-MX', { timeZone: 'UTC' });
 
-    try {
-        const res = await fetch('http://172.20.10.2:3000/logout', {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ id_usuario: userId })
+                // --- AQUÍ INICIAMOS LA ANIMACIÓN DE PUNTOS Y DIAMANTES ---
+                // Si vienen null, usamos 0
+                animarCifra('perfil-puntos', data.puntos || 0);
+                animarCifra('perfil-diamantes', data.diamantes || 0);
+
+            } catch (err) {
+                console.error(err);
+                alert('No se pudieron cargar los datos del perfil.');
+            }
         });
-        if (!res.ok) throw new Error('Error al cerrar sesión');
 
-        localStorage.removeItem('userId'); // limpiar sesión local
-        alert('Sesión cerrada correctamente');
-        window.location.href = 'inicio.html';
-    } catch (err) {
-        console.error(err);
-        alert('No se pudo cerrar la sesión');
-    }
-});
-</script>
+        // --- LOGOUT ---
+        document.getElementById('logout-button').addEventListener('click', async (e) => {
+            e.preventDefault(); 
+            const userId = localStorage.getItem('userId');
+            if (!userId) return window.location.href = 'inicio.html';
 
+            try {
+                await fetch(`${SERVER_URL}/logout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_usuario: userId })
+                });
+                
+                localStorage.clear(); // Limpia todo (userId, usuario, etc.)
+                alert('Sesión cerrada correctamente');
+                window.location.href = 'inicio.html';
+            } catch (err) {
+                console.error(err);
+                localStorage.clear();
+                window.location.href = 'inicio.html';
+            }
+        });
+    </script>
 
 </body>
 

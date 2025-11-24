@@ -504,7 +504,7 @@ app.post('/logout', (req, res) => {
 // --- PERFIL ---
 app.get('/profile/:id', (req, res) => {
     const userId = req.params.id;
-    const sql = "SELECT nombres, apellidos, usuario, correo, fechaNacimiento, foto FROM Usuario WHERE id_usuario = ?";
+    const sql = "SELECT nombres, apellidos, usuario, correo, fechaNacimiento, foto, puntos, diamantes FROM Usuario WHERE id_usuario = ?";
 
     connection.query(sql, [userId], (err, results) => {
         if (err) return res.status(500).json({ message: err.message });
@@ -729,11 +729,15 @@ app.get('/admin/tasks', (req, res) => {
     });
 });
 
-// Agregar tarea
+// Agregar tarea (CON DIAMANTES 💎) -> ¡ESTA ES LA PARTE QUE CAMBIÓ!
 app.post('/admin/tasks', (req, res) => {
-    const { titulo, descripcion } = req.body;
-    const sql = "INSERT INTO Tarea (titulo, descripcion, completada) VALUES (?, ?, 0)";
-    connection.query(sql, [titulo, descripcion], (err, result) => {
+    const { titulo, descripcion, diamantes } = req.body; // Ahora recibimos también los diamantes
+    
+    // Insertamos guardando el valor en 'recompensa_diamantes'
+    // Si no se especifica cantidad, usamos 5 por defecto (diamantes || 5)
+    const sql = "INSERT INTO Tarea (titulo, descripcion, recompensa_diamantes, completada) VALUES (?, ?, ?, 0)";
+    
+    connection.query(sql, [titulo, descripcion, diamantes || 5], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Tarea creada", id: result.insertId });
     });
@@ -967,23 +971,42 @@ app.get('/api/tasks/user/:id_usuario', (req, res) => {
     });
 });
 
-// --- 2. Marcar Tarea como Completada ---
+// --- 2. Marcar Tarea como Completada y dar sus DIAMANTES específicos 💎 (SIN LÍMITE) ---
 app.post('/api/tasks/complete', (req, res) => {
     const { id_usuario, id_tarea } = req.body;
-    const sql = "INSERT INTO UsuarioTarea (id_usuario, id_tarea) VALUES (?, ?)";
-    
-    connection.query(sql, [id_usuario, id_tarea], (err, result) => {
-        if (err) {
-            // Si ya estaba completada (error de duplicado), no pasa nada
-            if (err.code === 'ER_DUP_ENTRY') return res.json({ message: "Tarea ya estaba completada." });
-            return res.status(500).json({ error: err.message });
-        }
-        
-        // Opcional: Aquí podrías sumar puntos extra al usuario por completar tarea
-        // const sqlPuntos = "UPDATE Usuario SET puntos = puntos + 10 WHERE id_usuario = ?";
-        // connection.query(sqlPuntos, [id_usuario]);
 
-        res.json({ message: "Tarea completada exitosamente" });
+    // 1. Primero verificamos si ya la hizo para no regalar diamantes dobles
+    const sqlCheck = "SELECT * FROM UsuarioTarea WHERE id_usuario = ? AND id_tarea = ?";
+    connection.query(sqlCheck, [id_usuario, id_tarea], (errCheck, resultsCheck) => {
+        if (errCheck) return res.status(500).json({ error: errCheck.message });
+        if (resultsCheck.length > 0) return res.json({ message: "Tarea ya estaba completada." });
+
+        // 2. Si no la ha hecho, consultamos CUÁNTOS diamantes vale esa tarea
+        const sqlTarea = "SELECT recompensa_diamantes FROM Tarea WHERE id_tarea = ?";
+        connection.query(sqlTarea, [id_tarea], (errTask, resultsTask) => {
+            if (errTask) return res.status(500).json({ error: errTask.message });
+            if (resultsTask.length === 0) return res.status(404).json({ message: "Tarea no encontrada" });
+
+            // Obtenemos el valor real de la tarea (o 5 por defecto si es null)
+            const diamantesGanar = resultsTask[0].recompensa_diamantes || 5;
+
+            // 3. Registramos la tarea como hecha en la tabla intermedia
+            const sqlInsert = "INSERT INTO UsuarioTarea (id_usuario, id_tarea) VALUES (?, ?)";
+            connection.query(sqlInsert, [id_usuario, id_tarea], (errInsert) => {
+                if (errInsert) return res.status(500).json({ error: errInsert.message });
+
+                // 4. Entregamos los diamantes correspondientes al usuario (SUMA DIRECTA SIN LÍMITE)
+                const sqlUpdate = "UPDATE Usuario SET diamantes = diamantes + ? WHERE id_usuario = ?";
+                connection.query(sqlUpdate, [diamantesGanar, id_usuario], (errUpdate) => {
+                    if (errUpdate) console.error("Error entregando diamantes:", errUpdate);
+                    
+                    res.json({ 
+                        message: "Tarea completada exitosamente", 
+                        diamantesGanados: diamantesGanar 
+                    });
+                });
+            });
+        });
     });
 });
 

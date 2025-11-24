@@ -243,6 +243,12 @@
                             <label>Descripción</label>
                             <textarea id="task-desc" required></textarea>
                         </div>
+                        
+                        <div class="form-group">
+                            <label>Recompensa (Diamantes 💎)</label>
+                            <input type="number" id="task-diamonds" required min="1" value="5" placeholder="Ej: 10">
+                        </div>
+
                         <button type="submit" class="add-button"><i class="fas fa-plus"></i> Agregar Tarea</button>
                     </form>
                 </div>
@@ -488,7 +494,7 @@
             };
 
             // =========================================================
-            // 3. TAREAS
+            // 3. TAREAS (CON DIAMANTES)
             // =========================================================
             async function renderTasks() {
                 try {
@@ -498,26 +504,38 @@
                     tasks.forEach(task => {
                         const div = document.createElement('div');
                         div.classList.add('task-item');
+                        // AQUI MOSTRAMOS LOS DIAMANTES QUE DA LA TAREA
                         div.innerHTML = `
-                            <div class="task-info"><h4>${task.titulo}</h4><p>${task.descripcion}</p></div>
+                            <div class="task-info">
+                                <h4>${task.titulo} <span style="color:#00e676; font-size:0.9em;">(+${task.recompensa_diamantes || 5} 💎)</span></h4>
+                                <p>${task.descripcion}</p>
+                            </div>
                             <button class="delete-btn" onclick="deleteTask(${task.id_tarea})"><i class="fas fa-trash-alt"></i></button>
                         `;
                         taskListContainer.appendChild(div);
                     });
                 } catch (err) {}
             }
+
             addTaskForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const titulo = document.getElementById('task-title').value;
                 const descripcion = document.getElementById('task-desc').value;
+                const diamantes = document.getElementById('task-diamonds').value; // Capturamos diamantes
+
                 try {
                     const res = await fetch('/admin/tasks', {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ titulo, descripcion })
+                        body: JSON.stringify({ titulo, descripcion, diamantes }) // Enviamos diamantes
                     });
-                    if(res.ok) { alert("Tarea creada"); addTaskForm.reset(); renderTasks(); }
+                    if(res.ok) { 
+                        alert("Tarea creada con éxito"); 
+                        addTaskForm.reset(); 
+                        renderTasks(); 
+                    }
                 } catch (err) {}
             });
+
             window.deleteTask = async (id) => {
                 if(!confirm("¿Borrar tarea?")) return;
                 await fetch(`/admin/tasks/${id}`, { method: 'DELETE' }); renderTasks();
