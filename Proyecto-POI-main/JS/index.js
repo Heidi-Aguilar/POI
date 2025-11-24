@@ -920,12 +920,12 @@ app.post('/api/pronosticos', (req, res) => {
         .catch(err => res.status(500).json({ error: err.message }));
 });
 
-// --- 10. USUARIO: Obtener Historial de Predicciones (Partidos Finalizados) ---
+// --- 10. USUARIO: Obtener Historial (SOLO FINALIZADAS) ---
 app.get('/api/pronosticos/historial/:id_usuario', (req, res) => {
     const { id_usuario } = req.params;
     const sql = `
         SELECT 
-            p.equipo1, p.equipo2, p.fase, 
+            p.equipo1, p.equipo2, p.fase, p.estatus,
             p.goles_equipo1 AS real1, p.goles_equipo2 AS real2,
             pr.prediccion_eq1 AS pred1, pr.prediccion_eq2 AS pred2,
             pr.puntos_ganados
