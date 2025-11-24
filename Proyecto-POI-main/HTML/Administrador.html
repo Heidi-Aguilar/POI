@@ -520,330 +520,241 @@
             </section>
         </main>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Referencias a elementos del DOM
             const navLinks = document.querySelectorAll('.admin-nav a');
             const sections = document.querySelectorAll('.admin-section');
-            const addMatchBtnQuiniela = document.getElementById('add-match-btn');
-            const matchesContainerQuiniela = document.getElementById('quiniela-matches-container');
-            const quinielaForm = document.getElementById('quiniela-form');
-            const deleteQuinielaBtn = document.getElementById('delete-quiniela-btn');
-
-            const addInsigniaForm = document.getElementById('add-insignia-form');
-            const insigniasListContainer = document.getElementById('insignias-list-container');
-            const insigniaNameInput = document.getElementById('insignia-name');
-            const insigniaDescInput = document.getElementById('insignia-desc');
-            const insigniaImgInput = document.getElementById('insignia-img');
-
-            const addTaskForm = document.getElementById('add-task-form');
-            const taskTitleInput = document.getElementById('task-title');
-            const taskDescInput = document.getElementById('task-desc');
-            const taskListContainer = document.getElementById('task-list-container');
             
-            // Nueva lógica de partidos
+            // Formularios y Contenedores
             const addMatchForm = document.getElementById('add-match-form');
             const matchListContainer = document.getElementById('match-list-container');
-            const team1NameInput = document.getElementById('team1-name');
-            const team2NameInput = document.getElementById('team2-name');
-            const matchStageSelect = document.getElementById('match-stage');
-
-            // Navegación de la barra lateral
+            
+            const addTaskForm = document.getElementById('add-task-form');
+            const taskListContainer = document.getElementById('task-list-container');
+            
+            const addInsigniaForm = document.getElementById('add-insignia-form');
+            const insigniasListContainer = document.getElementById('insignias-list-container');
+    
+            // --- NAVEGACIÓN (Tabs) ---
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     navLinks.forEach(item => item.classList.remove('active'));
                     sections.forEach(sec => sec.classList.remove('active'));
-
+    
                     const targetSection = e.target.dataset.section;
-                    document.getElementById(targetSection + '-section').classList.add('active');
-                    e.target.classList.add('active');
+                    const sectionEl = document.getElementById(targetSection + '-section');
+                    if(sectionEl) {
+                        sectionEl.classList.add('active');
+                        e.target.classList.add('active');
+                    }
                 });
             });
-
-            // --- Lógica para la Gestión de Partidos del Mundial 2026 ---
-
-            // Función para renderizar los partidos del Mundial
-            const renderWorldCupMatches = () => {
-                const savedMatches = JSON.parse(localStorage.getItem('worldCupMatches') || '[]');
-                matchListContainer.innerHTML = '';
-
-                savedMatches.forEach((match, index) => {
-                    const matchDiv = document.createElement('div');
-                    matchDiv.classList.add('admin-card', 'elim-match');
-                    matchDiv.innerHTML = `
-                        <h4 class="card-title">${match.stage}</h4>
-                        <span class="elim-team-name">${match.team1Name}</span>
-                        <span class="elim-team-name">${match.team2Name}</span>
-                        <div class="match-actions">
-                            ${match.completed ? 
-                                `<span class="match-completed-status">Completado</span>` : 
-                                `<button class="complete-btn" data-index="${index}"><i class="fas fa-check"></i> Completado</button>`
-                            }
-                            <button class="edit-btn remove-match-btn" data-index="${index}">
+    
+            // =========================================================
+            // 1. GESTIÓN DE PARTIDOS (API REAL)
+            // =========================================================
+    
+            async function renderMatches() {
+                try {
+                    const res = await fetch('/admin/matches');
+                    const matches = await res.json();
+                    
+                    matchListContainer.innerHTML = '';
+                    matches.forEach(match => {
+                        const div = document.createElement('div');
+                        div.classList.add('admin-card', 'elim-match');
+                        
+                        // Determinar estado para mostrar botón o texto
+                        const statusHtml = match.estatus === 'finalizado' 
+                            ? `<span class="match-completed-status"><i class="fas fa-check-circle"></i> Finalizado</span>`
+                            : `<button class="complete-btn" onclick="completeMatch(${match.id_partido})"><i class="fas fa-check"></i> Terminar</button>`;
+    
+                        div.innerHTML = `
+                            <div style="flex:1">
+                                <h4 style="color:#ffd700; margin-bottom:5px;">${match.fase}</h4>
+                                <div style="font-size:1.1em;">
+                                    <b>${match.equipo1}</b> vs <b>${match.equipo2}</b>
+                                </div>
+                            </div>
+                            <div class="match-actions">
+                                ${statusHtml}
+                                <button class="delete-btn" onclick="deleteMatch(${match.id_partido})">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        `;
+                        matchListContainer.appendChild(div);
+                    });
+                } catch (err) {
+                    console.error("Error cargando partidos:", err);
+                }
+            }
+    
+            // Agregar Partido
+            addMatchForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const equipo1 = document.getElementById('team1-name').value;
+                const equipo2 = document.getElementById('team2-name').value;
+                const fase = document.getElementById('match-stage').value;
+    
+                if(!equipo1 || !equipo2) return alert("Llena los nombres de los equipos");
+    
+                try {
+                    const res = await fetch('/admin/matches', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ equipo1, equipo2, fase })
+                    });
+                    
+                    if(res.ok) {
+                        alert("Partido agregado correctamente");
+                        addMatchForm.reset();
+                        renderMatches(); // Recargar lista
+                    } else {
+                        alert("Error al agregar partido");
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+    
+            // Funciones globales para botones dinámicos (Eliminar / Completar)
+            window.deleteMatch = async (id) => {
+                if(!confirm("¿Eliminar este partido?")) return;
+                try {
+                    await fetch(`/admin/matches/${id}`, { method: 'DELETE' });
+                    renderMatches();
+                } catch(err) { console.error(err); }
+            };
+    
+            window.completeMatch = async (id) => {
+                if(!confirm("¿Marcar partido como finalizado?")) return;
+                try {
+                    await fetch(`/admin/matches/${id}/complete`, { method: 'PUT' });
+                    renderMatches();
+                } catch(err) { console.error(err); }
+            };
+    
+    
+            // =========================================================
+            // 2. GESTIÓN DE TAREAS (API REAL)
+            // =========================================================
+    
+            async function renderTasks() {
+                try {
+                    const res = await fetch('/admin/tasks');
+                    const tasks = await res.json();
+                    
+                    taskListContainer.innerHTML = '';
+                    tasks.forEach(task => {
+                        const div = document.createElement('div');
+                        div.classList.add('task-item');
+                        div.innerHTML = `
+                            <div class="task-info">
+                                <h4>${task.titulo}</h4>
+                                <p>${task.descripcion}</p>
+                            </div>
+                            <button class="delete-btn" onclick="deleteTask(${task.id_tarea})">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
-                        </div>
-                    `;
-                    matchListContainer.appendChild(matchDiv);
-                });
-            };
-
-            // Lógica para agregar un nuevo partido
-            addMatchForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const team1Name = team1NameInput.value;
-                const team2Name = team2NameInput.value;
-                const stage = matchStageSelect.value;
-                
-                if (!team1Name || !team2Name) return;
-
-                const newMatch = {
-                    team1Name,
-                    team2Name,
-                    stage,
-                    completed: false
-                };
-
-                const savedMatches = JSON.parse(localStorage.getItem('worldCupMatches') || '[]');
-                savedMatches.push(newMatch);
-                localStorage.setItem('worldCupMatches', JSON.stringify(savedMatches));
-
-                alert('¡Partido agregado con éxito!');
-                team1NameInput.value = '';
-                team2NameInput.value = '';
-                renderWorldCupMatches();
-            });
-
-            // Lógica para eliminar un partido o marcarlo como completado
-            matchListContainer.addEventListener('click', (e) => {
-                const btn = e.target.closest('.remove-match-btn');
-                const completeBtn = e.target.closest('.complete-btn');
-
-                if (btn) {
-                    const index = btn.dataset.index;
-                    if (confirm("¿Estás seguro de que quieres eliminar este partido?")) {
-                        const savedMatches = JSON.parse(localStorage.getItem('worldCupMatches') || '[]');
-                        savedMatches.splice(index, 1);
-                        localStorage.setItem('worldCupMatches', JSON.stringify(savedMatches));
-                        renderWorldCupMatches();
-                        alert('Partido eliminado con éxito.');
-                    }
-                } else if (completeBtn) {
-                    const index = completeBtn.dataset.index;
-                    const savedMatches = JSON.parse(localStorage.getItem('worldCupMatches') || '[]');
-                    savedMatches[index].completed = true;
-                    localStorage.setItem('worldCupMatches', JSON.stringify(savedMatches));
-                    renderWorldCupMatches();
-                    alert('Partido marcado como completado.');
-                }
-            });
-
-            // Cargar partidos al iniciar
-            renderWorldCupMatches();
-
-            // --- Lógica para la Gestión de Quinielas ---
-
-            // Función para renderizar los partidos de la quiniela
-            const renderQuinielaMatches = (matches) => {
-                matchesContainerQuiniela.innerHTML = '';
-                matches.forEach(match => {
-                    const newMatchDiv = document.createElement('div');
-                    newMatchDiv.classList.add('quiniela-match');
-                    newMatchDiv.innerHTML = `
-                        <div class="quiniela-match-input-group">
-                            <input type="text" class="team1-name" placeholder="Equipo 1" value="${match.team1Name || ''}">
-                            <span>vs</span>
-                            <input type="text" class="team2-name" placeholder="Equipo 2" value="${match.team2Name || ''}">
-                            <input type="number" class="score1" placeholder="Goles" value="${match.score1 || ''}">
-                            <input type="number" class="score2" placeholder="Goles" value="${match.score2 || ''}">
-                        </div>
-                        <button type="button" class="edit-btn remove-match-btn"><i class="fas fa-trash-alt"></i></button>
-                    `;
-                    matchesContainerQuiniela.appendChild(newMatchDiv);
-
-                    newMatchDiv.querySelector('.remove-match-btn').addEventListener('click', () => {
-                        newMatchDiv.remove();
+                        `;
+                        taskListContainer.appendChild(div);
                     });
-                });
-            };
-
-            // Cargar datos de la quiniela al iniciar la página
-            const loadSavedQuiniela = () => {
-                const savedQuiniela = localStorage.getItem('quinielaData');
-                if (savedQuiniela) {
-                    const matches = JSON.parse(savedQuiniela);
-                    renderQuinielaMatches(matches);
+                } catch (err) {
+                    console.error("Error cargando tareas:", err);
                 }
-            };
-
-            // Lógica para agregar un nuevo partido a la quiniela
-            addMatchBtnQuiniela.addEventListener('click', () => {
-                renderQuinielaMatches([...JSON.parse(localStorage.getItem('quinielaData') || '[]'), {}]);
-            });
-
-            // Lógica para guardar la quiniela
-            quinielaForm.addEventListener('submit', (e) => {
+            }
+    
+            addTaskForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const matches = [];
-                const matchDivs = matchesContainerQuiniela.querySelectorAll('.quiniela-match');
-                
-                matchDivs.forEach(div => {
-                    const team1Name = div.querySelector('.team1-name').value;
-                    const team2Name = div.querySelector('.team2-name').value;
-                    const score1 = div.querySelector('.score1').value;
-                    const score2 = div.querySelector('.score2').value;
-
-                    matches.push({
-                        team1Name,
-                        team2Name,
-                        score1,
-                        score2
+                const titulo = document.getElementById('task-title').value;
+                const descripcion = document.getElementById('task-desc').value;
+    
+                try {
+                    const res = await fetch('/admin/tasks', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ titulo, descripcion })
                     });
-                });
-
-                localStorage.setItem('quinielaData', JSON.stringify(matches));
-                alert('¡Quiniela guardada con éxito!');
-                loadSavedQuiniela();
-            });
-
-            // Lógica para eliminar la quiniela guardada
-            deleteQuinielaBtn.addEventListener('click', () => {
-                if (confirm("¿Estás seguro de que quieres eliminar la quiniela? Esta acción no se puede deshacer.")) {
-                    localStorage.removeItem('quinielaData');
-                    matchesContainerQuiniela.innerHTML = '';
-                    alert('Quiniela eliminada con éxito.');
-                }
-            });
-
-            // Cargar quiniela al inicio
-            loadSavedQuiniela();
-
-            // --- Lógica para la Gestión de Tareas ---
-
-            // Función para renderizar las tareas
-            const renderTasks = () => {
-                const savedTasks = JSON.parse(localStorage.getItem('tasksData') || '[]');
-                taskListContainer.innerHTML = '';
-
-                savedTasks.forEach((task, index) => {
-                    const taskDiv = document.createElement('div');
-                    taskDiv.classList.add('task-item');
-                    taskDiv.innerHTML = `
-                        <div class="task-info">
-                            <h4>${task.title}</h4>
-                            <p>${task.desc}</p>
-                        </div>
-                        <button class="delete-btn remove-task-btn" data-index="${index}">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    `;
-                    taskListContainer.appendChild(taskDiv);
-                });
-            };
-
-            // Lógica para agregar una nueva tarea
-            addTaskForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const title = taskTitleInput.value;
-                const desc = taskDescInput.value;
-                if (!title || !desc) return;
-
-                const newTask = { title, desc };
-                const savedTasks = JSON.parse(localStorage.getItem('tasksData') || '[]');
-                savedTasks.push(newTask);
-                localStorage.setItem('tasksData', JSON.stringify(savedTasks));
-
-                alert('¡Tarea agregada con éxito!');
-                taskTitleInput.value = '';
-                taskDescInput.value = '';
-                renderTasks();
-            });
-
-            // Lógica para eliminar una tarea
-            taskListContainer.addEventListener('click', (e) => {
-                if (e.target.closest('.remove-task-btn')) {
-                    const btn = e.target.closest('.remove-task-btn');
-                    const index = btn.dataset.index;
-
-                    if (confirm("¿Estás seguro de que quieres eliminar esta tarea?")) {
-                        const savedTasks = JSON.parse(localStorage.getItem('tasksData') || '[]');
-                        savedTasks.splice(index, 1);
-                        localStorage.setItem('tasksData', JSON.stringify(savedTasks));
+                    if(res.ok) {
+                        alert("Tarea creada");
+                        addTaskForm.reset();
                         renderTasks();
-                        alert('Tarea eliminada con éxito.');
                     }
-                }
+                } catch (err) { console.error(err); }
             });
-
-            // Cargar tareas al iniciar
-            renderTasks();
-            
-            // --- Lógica para la Gestión de Insignias ---
-
-            // Función para renderizar las insignias
-            const renderInsignias = () => {
-                const savedInsignias = JSON.parse(localStorage.getItem('insigniasData') || '[]');
-                insigniasListContainer.innerHTML = '';
-                
-                savedInsignias.forEach((insignia, index) => {
-                    const insigniaDiv = document.createElement('div');
-                    insigniaDiv.classList.add('insignia-item');
-                    insigniaDiv.innerHTML = `
-                        <img src="${insignia.imgUrl}" alt="${insignia.name}">
-                        <div class="insignia-info">
-                            <h4>${insignia.name}</h4>
-                            <p>${insignia.desc}</p>
-                        </div>
-                        <button class="remove-insignia-btn" data-index="${index}">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    `;
-                    insigniasListContainer.appendChild(insigniaDiv);
-                });
+    
+            window.deleteTask = async (id) => {
+                if(!confirm("¿Borrar tarea?")) return;
+                await fetch(`/admin/tasks/${id}`, { method: 'DELETE' });
+                renderTasks();
             };
-
-            // Lógica para agregar una nueva insignia
-            addInsigniaForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const name = insigniaNameInput.value;
-                const desc = insigniaDescInput.value;
-                const imgUrl = insigniaImgInput.value;
-                
-                const newInsignia = { name, desc, imgUrl };
-                
-                const savedInsignias = JSON.parse(localStorage.getItem('insigniasData') || '[]');
-                savedInsignias.push(newInsignia);
-                
-                localStorage.setItem('insigniasData', JSON.stringify(savedInsignias));
-                
-                alert('¡Insignia agregada con éxito!');
-                
-                insigniaNameInput.value = '';
-                insigniaDescInput.value = '';
-                insigniaImgInput.value = '';
-                
-                renderInsignias();
-            });
-
-            // Lógica para eliminar una insignia
-            insigniasListContainer.addEventListener('click', (e) => {
-                if (e.target.closest('.remove-insignia-btn')) {
-                    const btn = e.target.closest('.remove-insignia-btn');
-                    const index = btn.dataset.index;
+    
+    
+            // =========================================================
+            // 3. GESTIÓN DE INSIGNIAS (API REAL)
+            // =========================================================
+    
+            async function renderBadges() {
+                try {
+                    const res = await fetch('/admin/badges');
+                    const badges = await res.json();
                     
-                    if (confirm("¿Estás seguro de que quieres eliminar esta insignia?")) {
-                        const savedInsignias = JSON.parse(localStorage.getItem('insigniasData') || '[]');
-                        savedInsignias.splice(index, 1);
-                        localStorage.setItem('insigniasData', JSON.stringify(savedInsignias));
-                        renderInsignias();
-                        alert('Insignia eliminada con éxito.');
+                    insigniasListContainer.innerHTML = '';
+                    badges.forEach(badge => {
+                        const div = document.createElement('div');
+                        div.classList.add('insignia-item');
+                        div.innerHTML = `
+                            <img src="${badge.imagen_url}" alt="icon" onerror="this.src='../Resources/Imagenes/QuinielazoLogo.png'">
+                            <div class="insignia-info">
+                                <h4>${badge.nombre}</h4>
+                                <p>${badge.descripcion}</p>
+                            </div>
+                            <button class="remove-insignia-btn" onclick="deleteBadge(${badge.id_insignia})">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        `;
+                        insigniasListContainer.appendChild(div);
+                    });
+                } catch (err) { console.error(err); }
+            }
+    
+            addInsigniaForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const nombre = document.getElementById('insignia-name').value;
+                const descripcion = document.getElementById('insignia-desc').value;
+                const imagen_url = document.getElementById('insignia-img').value;
+    
+                try {
+                    const res = await fetch('/admin/badges', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ nombre, descripcion, imagen_url })
+                    });
+                    if(res.ok) {
+                        alert("Insignia agregada");
+                        addInsigniaForm.reset();
+                        renderBadges();
                     }
-                }
+                } catch (err) { console.error(err); }
             });
-
-            // Cargar insignias al inicio
-            renderInsignias();
+    
+            window.deleteBadge = async (id) => {
+                if(!confirm("¿Borrar insignia?")) return;
+                await fetch(`/admin/badges/${id}`, { method: 'DELETE' });
+                renderBadges();
+            };
+    
+            // --- INICIALIZACIÓN ---
+            // Cargar todos los datos al abrir la página
+            renderMatches();
+            renderTasks();
+            renderBadges();
         });
     </script>
+    
 </body>
-</html>
+</html>    

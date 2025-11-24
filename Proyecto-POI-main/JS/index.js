@@ -670,6 +670,121 @@ app.get('/reset/:correo/:nuevaPassword', async (req, res) => {
     });
 });
 
+// ================================================================
+// ⬇️⬇️⬇️ RUTAS DE ADMINISTRACIÓN (NUEVAS) ⬇️⬇️⬇️
+// ================================================================
+
+// --- 1. GESTIÓN DE PARTIDOS (MUNDIAL) ---
+
+// Obtener todos los partidos
+app.get('/admin/matches', (req, res) => {
+    const sql = "SELECT * FROM Partido ORDER BY fecha_partido ASC, id_partido ASC";
+    connection.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// Agregar nuevo partido
+app.post('/admin/matches', (req, res) => {
+    const { equipo1, equipo2, fase } = req.body;
+    const sql = "INSERT INTO Partido (equipo1, equipo2, fase, estatus) VALUES (?, ?, ?, 'pendiente')";
+    connection.query(sql, [equipo1, equipo2, fase], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Partido agregado", id: result.insertId });
+    });
+});
+
+// Eliminar partido
+app.delete('/admin/matches/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = "DELETE FROM Partido WHERE id_partido = ?";
+    connection.query(sql, [id], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Partido eliminado" });
+    });
+});
+
+// Marcar partido como completado (y opcionalmente guardar marcador)
+app.put('/admin/matches/:id/complete', (req, res) => {
+    const { id } = req.params;
+    // Por ahora solo cambiamos el estatus, luego podrías recibir goles también
+    const sql = "UPDATE Partido SET estatus = 'finalizado' WHERE id_partido = ?";
+    connection.query(sql, [id], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Partido finalizado" });
+    });
+});
+
+
+// --- 2. GESTIÓN DE TAREAS ---
+
+// Obtener tareas
+app.get('/admin/tasks', (req, res) => {
+    // Obtenemos solo las tareas globales (id_grupo IS NULL)
+    const sql = "SELECT * FROM Tarea WHERE id_grupo IS NULL ORDER BY id_tarea DESC";
+    connection.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// Agregar tarea
+app.post('/admin/tasks', (req, res) => {
+    const { titulo, descripcion } = req.body;
+    const sql = "INSERT INTO Tarea (titulo, descripcion, completada) VALUES (?, ?, 0)";
+    connection.query(sql, [titulo, descripcion], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Tarea creada", id: result.insertId });
+    });
+});
+
+// Eliminar tarea
+app.delete('/admin/tasks/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = "DELETE FROM Tarea WHERE id_tarea = ?";
+    connection.query(sql, [id], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Tarea eliminada" });
+    });
+});
+
+
+// --- 3. GESTIÓN DE INSIGNIAS (RECOMPENSAS) ---
+
+// Obtener insignias
+app.get('/admin/badges', (req, res) => {
+    const sql = "SELECT * FROM Insignia ORDER BY id_insignia DESC";
+    connection.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// Agregar insignia
+app.post('/admin/badges', (req, res) => {
+    const { nombre, descripcion, imagen_url } = req.body;
+    const sql = "INSERT INTO Insignia (nombre, descripcion, imagen_url) VALUES (?, ?, ?)";
+    connection.query(sql, [nombre, descripcion, imagen_url], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Insignia creada", id: result.insertId });
+    });
+});
+
+// Eliminar insignia
+app.delete('/admin/badges/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = "DELETE FROM Insignia WHERE id_insignia = ?";
+    connection.query(sql, [id], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Insignia eliminada" });
+    });
+});
+
+// ================================================================
+// ⬆️⬆️⬆️ FIN RUTAS DE ADMINISTRACIÓN ⬆️⬆️⬆️
+// ================================================================
+
 // ---------------- INICIO DEL SERVIDOR ----------------
 server.listen(port, "0.0.0.0", () => {
     console.log("🚀 Servidor corriendo en:");
