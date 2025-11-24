@@ -437,25 +437,42 @@ app.post('/register', async (req, res) => {
     });
 });
 
-// --- LOGIN (sesión única) ---
+// --- LOGIN (MODIFICADO PARA DIAGNÓSTICO) ---
 app.post('/login', (req, res) => {
     const { correo, password } = req.body;
-    // AGREGAMOS 'rol' A LA SELECCIÓN
+    
+    console.log("🔍 Intentando login con correo:", correo);
+
+    // IMPORTANTE: Asegúrate de incluir 'rol' en el SELECT
     const sql = 'SELECT id_usuario, usuario, contrasena, activo, rol FROM Usuario WHERE correo = ?';
 
     connection.query(sql, [correo], async (err, results) => {
-        if (err) return res.status(500).json({ message: err.message });
-        if (results.length === 0) return res.status(401).json({ message: 'Correo o contraseña incorrectos' });
+        if (err) {
+            console.error("❌ Error de Base de Datos:", err);
+            return res.status(500).json({ message: err.message });
+        }
+
+        // CASO 1: El correo no existe
+        if (results.length === 0) {
+            console.log("⚠️ Correo no encontrado en la BD.");
+            return res.status(401).json({ message: 'ERROR: El correo no existe' });
+        }
 
         const user = results[0];
+        console.log("✅ Usuario encontrado:", user.usuario, "| Rol:", user.rol);
 
+        // CASO 2: La contraseña no coincide
         const validPassword = await bcrypt.compare(password, user.contrasena);
-        if (!validPassword) return res.status(401).json({ message: 'Correo o contraseña incorrectos' });
+        if (!validPassword) {
+            console.log("❌ La contraseña no coincide con el hash.");
+            return res.status(401).json({ message: 'ERROR: Contraseña incorrecta' });
+        }
 
-        // ... lógica de sesión activa ...
+        // ÉXITO
+        console.log("🎉 Login exitoso. Rol:", user.rol);
+        
         connection.query('UPDATE Usuario SET activo = 0 WHERE id_usuario = ?', [user.id_usuario]);
 
-        // AGREGAMOS 'rol' A LA RESPUESTA JSON
         res.json({ 
             id_usuario: user.id_usuario, 
             usuario: user.usuario, 
@@ -624,6 +641,34 @@ app.post('/chat/private', (req, res) => {
     });
 });
 
+// --- HERRAMIENTA PARA RESETEAR CONTRASEÑA ---
+// Pégalo antes de server.listen
+app.get('/reset/:correo/:nuevaPassword', async (req, res) => {
+    const { correo, nuevaPassword } = req.params;
+    
+    // 1. Encriptamos la nueva contraseña con la MISMA librería que usa el login
+    const hash = await bcrypt.hash(nuevaPassword, 10);
+    
+    // 2. Actualizamos y forzamos el Rol a 1 (Administrador)
+    const sql = 'UPDATE Usuario SET contrasena = ?, rol = 1 WHERE correo = ?';
+    
+    connection.query(sql, [hash, correo], (err, result) => {
+        if (err) return res.send("Error SQL: " + err.message);
+        
+        if (result.affectedRows === 0) {
+            return res.send(`❌ No encontré ningún usuario con el correo: <b>${correo}</b>`);
+        }
+        
+        res.send(`
+            <h1 style="color:green">¡ÉXITO! ✅</h1>
+            <p>El usuario <b>${correo}</b> ha sido actualizado.</p>
+            <p>Nueva contraseña: <b>${nuevaPassword}</b></p>
+            <p>Rol: <b>Administrador (1)</b></p>
+            <br>
+            <a href="/"> <button style="padding:10px; cursor:pointer;">➡️ IR AL LOGIN</button> </a>
+        `);
+    });
+});
 
 // ---------------- INICIO DEL SERVIDOR ----------------
 server.listen(port, "0.0.0.0", () => {

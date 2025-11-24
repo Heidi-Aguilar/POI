@@ -200,7 +200,7 @@
                     // --- REDIRECCIÓN SEGÚN ROL ---
                     // Si rol es 1 (Admin) -> Administrador.html
                     // Si no -> perfil.html
-                    if (data.rol === 1) {
+                    if (data.rol == 1) {
                         window.location.href = `http://192.168.100.73:3000/HTML/Administrador.html`;
                     } else {
                         window.location.href = `http://192.168.100.73:3000/HTML/perfil.html`;
