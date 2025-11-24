@@ -761,16 +761,6 @@ app.get('/admin/badges', (req, res) => {
     });
 });
 
-// Agregar insignia
-app.post('/admin/badges', (req, res) => {
-    const { nombre, descripcion, imagen_url } = req.body;
-    const sql = "INSERT INTO Insignia (nombre, descripcion, imagen_url) VALUES (?, ?, ?)";
-    connection.query(sql, [nombre, descripcion, imagen_url], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Insignia creada", id: result.insertId });
-    });
-});
-
 // Eliminar insignia
 app.delete('/admin/badges/:id', (req, res) => {
     const { id } = req.params;
@@ -1030,6 +1020,58 @@ app.delete('/admin/badges/:id', (req, res) => {
         res.json({ message: "Insignia eliminada" });
     });
 });
+
+// ================================================================
+// ⬇️⬇️⬇️ RUTAS DE RECOMPENSAS PARA EL USUARIO (FALTANTES) ⬇️⬇️⬇️
+// ================================================================
+
+// --- 1. Obtener Tareas y saber si ya las completé ---
+app.get('/api/tasks/user/:id_usuario', (req, res) => {
+    const { id_usuario } = req.params;
+    const sql = `
+        SELECT t.*, 
+               CASE WHEN ut.id_usuario IS NOT NULL THEN 1 ELSE 0 END as completada_por_usuario
+        FROM Tarea t
+        LEFT JOIN UsuarioTarea ut ON t.id_tarea = ut.id_tarea AND ut.id_usuario = ?
+        WHERE t.id_grupo IS NULL
+        ORDER BY t.id_tarea DESC
+    `;
+    connection.query(sql, [id_usuario], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// --- 2. Marcar Tarea como Completada ---
+app.post('/api/tasks/complete', (req, res) => {
+    const { id_usuario, id_tarea } = req.body;
+    const sql = "INSERT INTO UsuarioTarea (id_usuario, id_tarea) VALUES (?, ?)";
+    
+    connection.query(sql, [id_usuario, id_tarea], (err, result) => {
+        if (err) {
+            if (err.code === 'ER_DUP_ENTRY') return res.json({ message: "Tarea ya estaba completada." });
+            return res.status(500).json({ error: err.message });
+        }
+        res.json({ message: "Tarea completada exitosamente" });
+    });
+});
+
+// --- 3. Obtener Insignias y saber si ya las gané ---
+app.get('/api/badges/user/:id_usuario', (req, res) => {
+    const { id_usuario } = req.params;
+    const sql = `
+        SELECT i.*, 
+               CASE WHEN ui.id_usuario IS NOT NULL THEN 1 ELSE 0 END as obtenida
+        FROM Insignia i
+        LEFT JOIN UsuarioInsignia ui ON i.id_insignia = ui.id_insignia AND ui.id_usuario = ?
+        ORDER BY i.precio_puntos ASC
+    `;
+    connection.query(sql, [id_usuario], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+// ================================================================
 
 // ---------------- INICIO DEL SERVIDOR ----------------
 server.listen(port, "0.0.0.0", () => {
