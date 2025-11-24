@@ -193,10 +193,18 @@
 
                 if (res.ok) {
                     const data = await res.json();
-                    // Guardamos ambos: id y nombre de usuario
+                    // Guardamos datos en localStorage
                     localStorage.setItem('userId', data.id_usuario);
-                    localStorage.setItem('usuario', data.usuario); // <--- esta línea faltaba
-                    window.location.href = `http://192.168.100.73:3000/HTML/perfil.html`;
+                    localStorage.setItem('usuario', data.usuario);
+                    
+                    // --- REDIRECCIÓN SEGÚN ROL ---
+                    // Si rol es 1 (Admin) -> Administrador.html
+                    // Si no -> perfil.html
+                    if (data.rol === 1) {
+                        window.location.href = `http://192.168.100.73:3000/HTML/Administrador.html`;
+                    } else {
+                        window.location.href = `http://192.168.100.73:3000/HTML/perfil.html`;
+                    }
                 }
                 else {
                     const errorData = await res.json();

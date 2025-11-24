@@ -440,7 +440,8 @@ app.post('/register', async (req, res) => {
 // --- LOGIN (sesión única) ---
 app.post('/login', (req, res) => {
     const { correo, password } = req.body;
-    const sql = 'SELECT id_usuario, usuario, contrasena, activo FROM Usuario WHERE correo = ?';
+    // AGREGAMOS 'rol' A LA SELECCIÓN
+    const sql = 'SELECT id_usuario, usuario, contrasena, activo, rol FROM Usuario WHERE correo = ?';
 
     connection.query(sql, [correo], async (err, results) => {
         if (err) return res.status(500).json({ message: err.message });
@@ -451,14 +452,15 @@ app.post('/login', (req, res) => {
         const validPassword = await bcrypt.compare(password, user.contrasena);
         if (!validPassword) return res.status(401).json({ message: 'Correo o contraseña incorrectos' });
 
-        if (user.activo === 0) {
-            // Manejar si la sesión única está activa
-        }
-
+        // ... lógica de sesión activa ...
         connection.query('UPDATE Usuario SET activo = 0 WHERE id_usuario = ?', [user.id_usuario]);
 
-        res.json({ id_usuario: user.id_usuario, usuario: user.usuario });
-
+        // AGREGAMOS 'rol' A LA RESPUESTA JSON
+        res.json({ 
+            id_usuario: user.id_usuario, 
+            usuario: user.usuario, 
+            rol: user.rol 
+        });
     });
 });
 
