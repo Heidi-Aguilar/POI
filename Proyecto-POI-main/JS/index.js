@@ -1056,16 +1056,29 @@ app.post('/api/tasks/complete', (req, res) => {
     });
 });
 
-// --- 3. Obtener Insignias y saber si ya las gané ---
+// --- 3. Obtener Insignias y calcular si ya las gané por puntos ---
 app.get('/api/badges/user/:id_usuario', (req, res) => {
     const { id_usuario } = req.params;
+    
+    // Modificamos la consulta para comparar los puntos del usuario con el precio de la insignia
+    // Usamos CROSS JOIN para traer los datos del usuario y compararlos con cada insignia
     const sql = `
         SELECT i.*, 
-               CASE WHEN ui.id_usuario IS NOT NULL THEN 1 ELSE 0 END as obtenida
+               CASE 
+                 -- Si los puntos del usuario son mayores o iguales al precio, la tiene (1)
+                 WHEN u.puntos >= i.precio_puntos THEN 1 
+                 -- Si ya se le otorgó manualmente (por si acaso), la tiene (1)
+                 WHEN ui.id_usuario IS NOT NULL THEN 1 
+                 -- Si no cumple nada, no la tiene (0)
+                 ELSE 0 
+               END as obtenida
         FROM Insignia i
-        LEFT JOIN UsuarioInsignia ui ON i.id_insignia = ui.id_insignia AND ui.id_usuario = ?
+        CROSS JOIN Usuario u 
+        LEFT JOIN UsuarioInsignia ui ON i.id_insignia = ui.id_insignia AND ui.id_usuario = u.id_usuario
+        WHERE u.id_usuario = ?
         ORDER BY i.precio_puntos ASC
     `;
+    
     connection.query(sql, [id_usuario], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);

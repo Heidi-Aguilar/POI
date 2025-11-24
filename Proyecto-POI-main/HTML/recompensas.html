@@ -26,20 +26,56 @@
             border: 2px solid #ffd700;
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
+
+        /* --- Tooltip Mejorado --- */
         .insignia-tooltip {
             position: absolute;
-            bottom: -30px;
+            bottom: 115%; /* Lo colocamos ARRIBA de la insignia */
             left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            padding: 5px;
-            border-radius: 4px;
-            font-size: 0.8em;
+            transform: translateX(-50%) scale(0.8); /* Inicia un poco más pequeño */
+            
+            /* Estilo visual */
+            background: rgba(20, 20, 20, 0.95); /* Fondo casi negro */
+            color: #ffd700; /* Texto Dorado */
+            border: 1px solid rgba(255, 215, 0, 0.3); /* Borde dorado sutil */
+            padding: 8px 14px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Sombra elegante */
+            
+            /* Tipografía */
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
             white-space: nowrap;
-            display: none;
-            z-index: 10;
+            letter-spacing: 0.5px;
+            
+            /* Animación */
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Efecto "rebote" suave */
+            z-index: 100;
+            pointer-events: none; /* Evita que el tooltip estorbe al mouse */
         }
-        .insignia-box:hover .insignia-tooltip { display: block; }
+
+        /* Triangulito (flecha) que apunta hacia abajo */
+        .insignia-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%; /* Justo debajo del tooltip */
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: rgba(20, 20, 20, 0.95) transparent transparent transparent;
+        }
+
+        /* Estado Hover (Cuando pasas el mouse) */
+        .insignia-box:hover .insignia-tooltip {
+            opacity: 1;
+            visibility: visible;
+            bottom: 125%; /* Se eleva un poquito al aparecer */
+            transform: translateX(-50%) scale(1); /* Crece a su tamaño normal */
+        }
     </style>
 </head>
 <body>
@@ -229,6 +265,7 @@
                     }
 
                     badges.forEach(b => {
+                        // La propiedad "obtenida" ahora viene calculada desde el servidor (por puntos)
                         const hasIt = b.obtenida === 1;
                         const div = document.createElement('div');
                         // Clase visual si la tiene o no
@@ -243,7 +280,7 @@
                         if(!b.imagen_url) div.innerHTML = '<span class="insignia-cruz">🏆</span>';
 
                         // Tooltip con el nombre
-                        div.innerHTML += `<div class="insignia-tooltip">${b.nombre}</div>`;
+                        div.innerHTML += `<div class="insignia-tooltip">${b.nombre} (${b.precio_puntos} pts)</div>`;
 
                         insigniasGrid.appendChild(div);
                     });
