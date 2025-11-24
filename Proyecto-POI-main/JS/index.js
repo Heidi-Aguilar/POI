@@ -501,9 +501,10 @@ app.post('/logout', (req, res) => {
 });
 
 
-// --- PERFIL ---
+// --- PERFIL (¡CORREGIDO! AHORA TRAE PUNTOS Y DIAMANTES) ---
 app.get('/profile/:id', (req, res) => {
     const userId = req.params.id;
+    // AQUI ESTA EL CAMBIO IMPORTANTE: Agregamos 'puntos' y 'diamantes'
     const sql = "SELECT nombres, apellidos, usuario, correo, fechaNacimiento, foto, puntos, diamantes FROM Usuario WHERE id_usuario = ?";
 
     connection.query(sql, [userId], (err, results) => {
@@ -522,7 +523,9 @@ app.get('/profile/:id', (req, res) => {
             usuario: user.usuario,
             correo: user.correo,
             fechaNacimiento: user.fechaNacimiento,
-            foto: fotoBase64
+            foto: fotoBase64,
+            puntos: user.puntos || 0,       // Enviamos puntos
+            diamantes: user.diamantes || 0  // Enviamos diamantes
         });
     });
 });
