@@ -376,11 +376,11 @@
             </div>
             <nav class="admin-nav">
                 <ul>
-                    <li><a href="#" data-section="partidos-mundial" class="active"><i class="fas fa-futbol"></i> Partidos Mundial 2026</a></li>
+                    <li><a href="#" data-section="partidos-mundial" class="active"><i class="fas fa-futbol"></i> Partidos Mundial</a></li>
                     <li><a href="#" data-section="quinielas"><i class="fas fa-list-check"></i> Gestión de Quinielas</a></li>
                     <li><a href="#" data-section="tareas"><i class="fas fa-tasks"></i> Tareas</a></li>
                     <li><a href="#" data-section="insignias"><i class="fas fa-medal"></i> Insignias</a></li>
-                    <li><a href="#" data-section="resultados"><i class="fas fa-clipboard-check"></i> Resultados de Quinielas</a></li>
+                    <li><a href="#" data-section="resultados"><i class="fas fa-clipboard-check"></i> Resultados</a></li>
                 </ul>
             </nav>
         </aside>
@@ -405,8 +405,9 @@
                         </div>
                         <div class="form-group">
                             <label for="match-stage">Fase del partido</label>
-                            <select id="match-stage">
+                            <select id="match-stage" style="width:100%; padding:10px; border-radius:8px; background:#333; color:#fff; border:1px solid #555;">
                                 <option value="Grupo A">Fase de Grupo A</option>
+                                <option value="Grupo B">Fase de Grupo B</option>
                                 <option value="Octavos">Octavos de Final</option>
                                 <option value="Cuartos">Cuartos de Final</option>
                                 <option value="Semifinal">Semifinal</option>
@@ -417,22 +418,32 @@
                     </form>
                 </div>
                 <div class="admin-card">
-                    <h4 class="card-title">Partidos</h4>
+                    <h4 class="card-title">Partidos Registrados</h4>
                     <div id="match-list-container" class="match-list">
                         </div>
                 </div>
             </section>
 
             <section id="quinielas-section" class="admin-section">
-                <h2>Gestión de Quinielas</h2>
+                <h2>Gestión de Quinielas (Jornadas)</h2>
                 <div class="admin-card">
-                    <h4 class="card-title">Crear Nueva Quiniela</h4>
+                    <h4 class="card-title">Crear Nueva Jornada</h4>
+                    <p style="color:#aaa; font-size:0.9em; margin-bottom:15px;">
+                        Aquí puedes crear una lista de partidos que formarán una "Jornada" o "Quiniela" para que los usuarios apuesten.
+                    </p>
                     <form id="quiniela-form">
-                        <button type="button" class="add-button" id="add-match-btn"><i class="fas fa-plus"></i> Agregar Partido</button>
-                        <div id="quiniela-matches-container">
+                        <div class="form-group">
+                            <label style="color:#ffd700">Nombre de la Jornada (Ej: Jornada 1)</label>
+                            <input type="text" id="jornada-name" placeholder="Escribe el nombre..." required>
+                        </div>
+
+                        <button type="button" class="add-button" id="add-match-btn"><i class="fas fa-plus"></i> Agregar Partido a la Lista</button>
+                        
+                        <div id="quiniela-matches-container" style="margin-top:15px; display:flex; flex-direction:column; gap:10px;">
                             </div>
-                        <button type="submit" class="submit-btn"><i class="fas fa-save"></i> Guardar Quiniela</button>
-                        <button type="button" class="delete-btn" id="delete-quiniela-btn"><i class="fas fa-trash-alt"></i> Eliminar Quiniela</button>
+                        
+                        <br>
+                        <button type="submit" class="submit-btn"><i class="fas fa-save"></i> Publicar Jornada</button>
                     </form>
                 </div>
             </section>
@@ -475,7 +486,7 @@
                         </div>
                         <div class="form-group">
                             <label for="insignia-img">URL de la imagen</label>
-                            <input type="text" id="insignia-img" required>
+                            <input type="text" id="insignia-img" required placeholder="../Resources/Imagenes/trofeo.png">
                         </div>
                         <button type="submit" class="add-button"><i class="fas fa-plus"></i> Agregar Insignia</button>
                     </form>
@@ -491,28 +502,19 @@
             <section id="resultados-section" class="admin-section">
                 <h2>Resultados de Quinielas</h2>
                 <div class="admin-card">
-                    <h4 class="card-title">Resultados Jornada 1</h4>
+                    <h4 class="card-title">Resultados Globales</h4>
+                    <p style="color:#aaa;">(Esta sección mostrará la tabla de líderes próximamente)</p>
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Jugador</th>
-                                <th>Puntos</th>
-                                <th>Pronóstico</th>
-                                <th>Resultado</th>
+                                <th>Puntos Totales</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Usuario 1</td>
-                                <td>10</td>
-                                <td>México 2 - 1 Japón</td>
-                                <td>México 2 - 1 Japón</td>
-                            </tr>
-                            <tr>
-                                <td>Usuario 2</td>
-                                <td>5</td>
-                                <td>México 1 - 1 Japón</td>
-                                <td>México 2 - 1 Japón</td>
+                                <td>Usuario Ejemplo</td>
+                                <td>0</td>
                             </tr>
                         </tbody>
                     </table>
@@ -536,14 +538,14 @@
             
             const addInsigniaForm = document.getElementById('add-insignia-form');
             const insigniasListContainer = document.getElementById('insignias-list-container');
-    
+
             // --- NAVEGACIÓN (Tabs) ---
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     navLinks.forEach(item => item.classList.remove('active'));
                     sections.forEach(sec => sec.classList.remove('active'));
-    
+
                     const targetSection = e.target.dataset.section;
                     const sectionEl = document.getElementById(targetSection + '-section');
                     if(sectionEl) {
@@ -552,11 +554,11 @@
                     }
                 });
             });
-    
+
             // =========================================================
-            // 1. GESTIÓN DE PARTIDOS (API REAL)
+            // 1. GESTIÓN DE PARTIDOS (API REAL - Individual)
             // =========================================================
-    
+
             async function renderMatches() {
                 try {
                     const res = await fetch('/admin/matches');
@@ -571,7 +573,7 @@
                         const statusHtml = match.estatus === 'finalizado' 
                             ? `<span class="match-completed-status"><i class="fas fa-check-circle"></i> Finalizado</span>`
                             : `<button class="complete-btn" onclick="completeMatch(${match.id_partido})"><i class="fas fa-check"></i> Terminar</button>`;
-    
+
                         div.innerHTML = `
                             <div style="flex:1">
                                 <h4 style="color:#ffd700; margin-bottom:5px;">${match.fase}</h4>
@@ -592,16 +594,16 @@
                     console.error("Error cargando partidos:", err);
                 }
             }
-    
-            // Agregar Partido
+
+            // Agregar Partido Individual
             addMatchForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const equipo1 = document.getElementById('team1-name').value;
                 const equipo2 = document.getElementById('team2-name').value;
                 const fase = document.getElementById('match-stage').value;
-    
+
                 if(!equipo1 || !equipo2) return alert("Llena los nombres de los equipos");
-    
+
                 try {
                     const res = await fetch('/admin/matches', {
                         method: 'POST',
@@ -612,7 +614,7 @@
                     if(res.ok) {
                         alert("Partido agregado correctamente");
                         addMatchForm.reset();
-                        renderMatches(); // Recargar lista
+                        renderMatches(); 
                     } else {
                         alert("Error al agregar partido");
                     }
@@ -620,29 +622,76 @@
                     console.error(err);
                 }
             });
-    
-            // Funciones globales para botones dinámicos (Eliminar / Completar)
-            window.deleteMatch = async (id) => {
-                if(!confirm("¿Eliminar este partido?")) return;
-                try {
-                    await fetch(`/admin/matches/${id}`, { method: 'DELETE' });
-                    renderMatches();
-                } catch(err) { console.error(err); }
-            };
-    
-            window.completeMatch = async (id) => {
-                if(!confirm("¿Marcar partido como finalizado?")) return;
-                try {
-                    await fetch(`/admin/matches/${id}/complete`, { method: 'PUT' });
-                    renderMatches();
-                } catch(err) { console.error(err); }
-            };
-    
-    
+
             // =========================================================
-            // 2. GESTIÓN DE TAREAS (API REAL)
+            // 2. GESTIÓN DE QUINIELAS (CREAR JORNADAS EN LOTE)
             // =========================================================
-    
+            
+            const quinielaForm = document.getElementById('quiniela-form');
+            const matchesContainerQuiniela = document.getElementById('quiniela-matches-container');
+            const addMatchBtnQuiniela = document.getElementById('add-match-btn');
+
+            // Botón para agregar una fila visual de partido
+            addMatchBtnQuiniela.addEventListener('click', () => {
+                const div = document.createElement('div');
+                div.classList.add('quiniela-match');
+                div.innerHTML = `
+                    <div class="quiniela-match-input-group">
+                        <input type="text" class="team1" placeholder="Equipo Local" required>
+                        <span style="color:#aaa">vs</span>
+                        <input type="text" class="team2" placeholder="Equipo Visitante" required>
+                    </div>
+                    <button type="button" class="delete-btn" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                matchesContainerQuiniela.appendChild(div);
+            });
+
+            // Enviar todo el lote al servidor
+            quinielaForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const nombreJornada = document.getElementById('jornada-name').value;
+                const filas = matchesContainerQuiniela.querySelectorAll('.quiniela-match');
+                const partidos = [];
+
+                filas.forEach(fila => {
+                    const eq1 = fila.querySelector('.team1').value;
+                    const eq2 = fila.querySelector('.team2').value;
+                    if(eq1 && eq2) {
+                        partidos.push({ eq1, eq2 });
+                    }
+                });
+
+                if(partidos.length === 0) return alert("Agrega al menos un partido a la jornada.");
+
+                try {
+                    const res = await fetch('/admin/quiniela/batch', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ nombreJornada, partidos })
+                    });
+
+                    if(res.ok) {
+                        alert(`¡${nombreJornada} publicada con éxito!`);
+                        matchesContainerQuiniela.innerHTML = ''; // Limpiar formulario
+                        document.getElementById('jornada-name').value = '';
+                        renderMatches(); // Recargar la lista general también
+                    } else {
+                        alert("Error al guardar la jornada.");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Error de conexión.");
+                }
+            });
+
+
+            // =========================================================
+            // 3. GESTIÓN DE TAREAS (API REAL)
+            // =========================================================
+
             async function renderTasks() {
                 try {
                     const res = await fetch('/admin/tasks');
@@ -667,12 +716,12 @@
                     console.error("Error cargando tareas:", err);
                 }
             }
-    
+
             addTaskForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const titulo = document.getElementById('task-title').value;
                 const descripcion = document.getElementById('task-desc').value;
-    
+
                 try {
                     const res = await fetch('/admin/tasks', {
                         method: 'POST',
@@ -686,18 +735,18 @@
                     }
                 } catch (err) { console.error(err); }
             });
-    
+
             window.deleteTask = async (id) => {
                 if(!confirm("¿Borrar tarea?")) return;
                 await fetch(`/admin/tasks/${id}`, { method: 'DELETE' });
                 renderTasks();
             };
-    
-    
+
+
             // =========================================================
-            // 3. GESTIÓN DE INSIGNIAS (API REAL)
+            // 4. GESTIÓN DE INSIGNIAS (API REAL)
             // =========================================================
-    
+
             async function renderBadges() {
                 try {
                     const res = await fetch('/admin/badges');
@@ -721,13 +770,13 @@
                     });
                 } catch (err) { console.error(err); }
             }
-    
+
             addInsigniaForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const nombre = document.getElementById('insignia-name').value;
                 const descripcion = document.getElementById('insignia-desc').value;
                 const imagen_url = document.getElementById('insignia-img').value;
-    
+
                 try {
                     const res = await fetch('/admin/badges', {
                         method: 'POST',
@@ -741,20 +790,35 @@
                     }
                 } catch (err) { console.error(err); }
             });
-    
+
             window.deleteBadge = async (id) => {
                 if(!confirm("¿Borrar insignia?")) return;
                 await fetch(`/admin/badges/${id}`, { method: 'DELETE' });
                 renderBadges();
             };
-    
+
+            // Funciones globales para botones dinámicos (Eliminar / Completar)
+            window.deleteMatch = async (id) => {
+                if(!confirm("¿Eliminar este partido?")) return;
+                try {
+                    await fetch(`/admin/matches/${id}`, { method: 'DELETE' });
+                    renderMatches();
+                } catch(err) { console.error(err); }
+            };
+
+            window.completeMatch = async (id) => {
+                if(!confirm("¿Marcar partido como finalizado?")) return;
+                try {
+                    await fetch(`/admin/matches/${id}/complete`, { method: 'PUT' });
+                    renderMatches();
+                } catch(err) { console.error(err); }
+            };
+
             // --- INICIALIZACIÓN ---
-            // Cargar todos los datos al abrir la página
             renderMatches();
             renderTasks();
             renderBadges();
         });
     </script>
-    
 </body>
-</html>    
+</html>

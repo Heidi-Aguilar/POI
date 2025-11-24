@@ -785,6 +785,76 @@ app.delete('/admin/badges/:id', (req, res) => {
 // ⬆️⬆️⬆️ FIN RUTAS DE ADMINISTRACIÓN ⬆️⬆️⬆️
 // ================================================================
 
+// ================================================================
+// ⬇️⬇️⬇️ RUTAS DE QUINIELA Y PRONÓSTICOS (NUEVAS) ⬇️⬇️⬇️
+// ================================================================
+
+// --- ADMIN: Crear una Jornada completa (Varios partidos a la vez) ---
+app.post('/admin/quiniela/batch', (req, res) => {
+    const { nombreJornada, partidos } = req.body; 
+    // partidos es un array: [{eq1, eq2}, {eq1, eq2}...]
+
+    if (!partidos || partidos.length === 0) return res.status(400).json({message: "No hay partidos"});
+
+    // Preparamos los valores para una inserción masiva
+    const values = partidos.map(p => [p.eq1, p.eq2, nombreJornada, 'pendiente']);
+    
+    const sql = "INSERT INTO Partido (equipo1, equipo2, fase, estatus) VALUES ?";
+    
+    connection.query(sql, [values], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: `Jornada '${nombreJornada}' creada con ${result.affectedRows} partidos.` });
+    });
+});
+
+// --- USUARIO: Obtener todas las jornadas disponibles (Fases distintas) ---
+app.get('/api/quiniela/jornadas', (req, res) => {
+    // Busca todas las fases distintas que tengan partidos pendientes
+    const sql = "SELECT DISTINCT fase FROM Partido WHERE estatus = 'pendiente' ORDER BY fase";
+    connection.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results.map(r => r.fase)); // Devuelve array simple: ["Jornada 1", "Jornada 2"]
+    });
+});
+
+// --- USUARIO: Obtener partidos de una jornada específica ---
+app.get('/api/quiniela/partidos/:jornada', (req, res) => {
+    const { jornada } = req.params;
+    const sql = "SELECT * FROM Partido WHERE fase = ? AND estatus = 'pendiente'";
+    connection.query(sql, [jornada], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// --- USUARIO: Guardar Pronósticos ---
+app.post('/api/pronosticos', (req, res) => {
+    const { id_usuario, predicciones } = req.body; 
+    // predicciones: [{id_partido, g1, g2}, ...]
+
+    if (!predicciones || predicciones.length === 0) return res.status(400).json({message: "Sin datos"});
+
+    // Usamos INSERT ... ON DUPLICATE KEY UPDATE para que si ya pronosticó, se actualice
+    const queries = predicciones.map(p => {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                INSERT INTO Pronostico (id_usuario, id_partido, prediccion_eq1, prediccion_eq2)
+                VALUES (?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE prediccion_eq1 = ?, prediccion_eq2 = ?
+            `;
+            connection.query(sql, [id_usuario, p.id_partido, p.g1, p.g2, p.g1, p.g2], (err, result) => {
+                if (err) reject(err);
+                else resolve(result);
+            });
+        });
+    });
+
+    Promise.all(queries)
+        .then(() => res.json({ message: "Pronósticos guardados correctamente" }))
+        .catch(err => res.status(500).json({ error: err.message }));
+});
+// ================================================================
+
 // ---------------- INICIO DEL SERVIDOR ----------------
 server.listen(port, "0.0.0.0", () => {
     console.log("🚀 Servidor corriendo en:");
