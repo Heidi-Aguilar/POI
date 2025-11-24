@@ -118,7 +118,7 @@ const io = new Server(server, {
         origin: [
             "http://localhost:3000",
             "http://127.0.0.1:3000",
-            "http://192.168.100.73:3000"
+            "http://172.20.10.2:3000"
         ],
         methods: ["GET", "POST"]
     }
@@ -1077,5 +1077,5 @@ app.get('/api/badges/user/:id_usuario', (req, res) => {
 server.listen(port, "0.0.0.0", () => {
     console.log("🚀 Servidor corriendo en:");
     console.log(`👉 PC:      http://localhost:${port}`);
-    console.log(`👉 Celular: http://192.168.100.73:${port}`);
+    console.log(`👉 Celular: http://172.20.10.2:${port}`);
 });
