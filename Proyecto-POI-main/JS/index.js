@@ -786,19 +786,16 @@ app.delete('/admin/badges/:id', (req, res) => {
 // ================================================================
 
 // ================================================================
-// ⬇️⬇️⬇️ RUTAS DE QUINIELA Y PRONÓSTICOS (NUEVAS) ⬇️⬇️⬇️
+// ⬇️⬇️⬇️ SECCIÓN MAESTRA DE QUINIELAS Y PRONÓSTICOS ⬇️⬇️⬇️
 // ================================================================
 
-// --- ADMIN: Crear una Jornada completa (Varios partidos a la vez) ---
+// --- 1. ADMIN: Crear una Jornada completa (Varios partidos a la vez) ---
 app.post('/admin/quiniela/batch', (req, res) => {
     const { nombreJornada, partidos } = req.body; 
-    // partidos es un array: [{eq1, eq2}, {eq1, eq2}...]
-
     if (!partidos || partidos.length === 0) return res.status(400).json({message: "No hay partidos"});
 
     // Preparamos los valores para una inserción masiva
     const values = partidos.map(p => [p.eq1, p.eq2, nombreJornada, 'pendiente']);
-    
     const sql = "INSERT INTO Partido (equipo1, equipo2, fase, estatus) VALUES ?";
     
     connection.query(sql, [values], (err, result) => {
@@ -807,17 +804,46 @@ app.post('/admin/quiniela/batch', (req, res) => {
     });
 });
 
-// --- USUARIO: Obtener todas las jornadas disponibles (Fases distintas) ---
-app.get('/api/quiniela/jornadas', (req, res) => {
-    // Busca todas las fases distintas que tengan partidos pendientes
-    const sql = "SELECT DISTINCT fase FROM Partido WHERE estatus = 'pendiente' ORDER BY fase";
+// --- 2. ADMIN: Obtener lista de jornadas para el visualizador ---
+app.get('/admin/quiniela/list', (req, res) => {
+    const sql = "SELECT fase, COUNT(*) as total, estatus FROM Partido GROUP BY fase ORDER BY fase";
     connection.query(sql, (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json(results.map(r => r.fase)); // Devuelve array simple: ["Jornada 1", "Jornada 2"]
+        res.json(results);
     });
 });
 
-// --- USUARIO: Obtener partidos de una jornada específica ---
+// --- 3. ADMIN: Eliminar una Jornada completa ---
+app.delete('/admin/quiniela/:nombreJornada', (req, res) => {
+    const { nombreJornada } = req.params;
+    const sql = "DELETE FROM Partido WHERE fase = ?";
+    connection.query(sql, [nombreJornada], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: `Jornada eliminada` });
+    });
+});
+
+// --- 4. ADMIN: Renombrar una Jornada ---
+app.put('/admin/quiniela/:nombreJornada', (req, res) => {
+    const { nombreJornada } = req.params;
+    const { nuevoNombre } = req.body;
+    const sql = "UPDATE Partido SET fase = ? WHERE fase = ?";
+    connection.query(sql, [nuevoNombre, nombreJornada], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: `Jornada actualizada` });
+    });
+});
+
+// --- 5. USUARIO: Obtener todas las jornadas disponibles ---
+app.get('/api/quiniela/jornadas', (req, res) => {
+    const sql = "SELECT DISTINCT fase FROM Partido WHERE estatus = 'pendiente' ORDER BY fase";
+    connection.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results.map(r => r.fase));
+    });
+});
+
+// --- 6. USUARIO: Obtener partidos de una jornada específica ---
 app.get('/api/quiniela/partidos/:jornada', (req, res) => {
     const { jornada } = req.params;
     const sql = "SELECT * FROM Partido WHERE fase = ? AND estatus = 'pendiente'";
@@ -827,14 +853,11 @@ app.get('/api/quiniela/partidos/:jornada', (req, res) => {
     });
 });
 
-// --- USUARIO: Guardar Pronósticos ---
+// --- 7. USUARIO: Guardar Pronósticos ---
 app.post('/api/pronosticos', (req, res) => {
     const { id_usuario, predicciones } = req.body; 
-    // predicciones: [{id_partido, g1, g2}, ...]
-
     if (!predicciones || predicciones.length === 0) return res.status(400).json({message: "Sin datos"});
 
-    // Usamos INSERT ... ON DUPLICATE KEY UPDATE para que si ya pronosticó, se actualice
     const queries = predicciones.map(p => {
         return new Promise((resolve, reject) => {
             const sql = `
@@ -843,8 +866,7 @@ app.post('/api/pronosticos', (req, res) => {
                 ON DUPLICATE KEY UPDATE prediccion_eq1 = ?, prediccion_eq2 = ?
             `;
             connection.query(sql, [id_usuario, p.id_partido, p.g1, p.g2, p.g1, p.g2], (err, result) => {
-                if (err) reject(err);
-                else resolve(result);
+                if (err) reject(err); else resolve(result);
             });
         });
     });
@@ -854,6 +876,67 @@ app.post('/api/pronosticos', (req, res) => {
         .catch(err => res.status(500).json({ error: err.message }));
 });
 // ================================================================
+
+// ================================================================
+// ⬇️⬇️⬇️ CÁLCULO DE RESULTADOS Y PUNTOS ⬇️⬇️⬇️
+// ================================================================
+
+// --- ADMIN: Registrar resultado de un partido y calcular puntos ---
+app.put('/admin/matches/:id/result', (req, res) => {
+    const { id } = req.params;
+    const { goles1, goles2 } = req.body;
+
+    // 1. Actualizar el partido con el resultado final
+    const sqlPartido = "UPDATE Partido SET goles_equipo1 = ?, goles_equipo2 = ?, estatus = 'finalizado' WHERE id_partido = ?";
+    
+    connection.query(sqlPartido, [goles1, goles2, id], (err, result) => {
+        if (err) return res.status(500).json({ error: "Error al actualizar partido: " + err.message });
+
+        // 2. Calcular puntos para los pronósticos de este partido
+        // Lógica: 3 puntos si acierta marcador exacto, 1 punto si acierta al ganador (o empate), 0 si falla.
+        const sqlPuntos = `
+            UPDATE Pronostico p
+            JOIN Partido m ON p.id_partido = m.id_partido
+            SET p.puntos_ganados = CASE
+                -- Acierto Exacto (3 Puntos)
+                WHEN p.prediccion_eq1 = m.goles_equipo1 AND p.prediccion_eq2 = m.goles_equipo2 THEN 3
+                -- Acierto Ganador o Empate (1 Punto)
+                WHEN (p.prediccion_eq1 > p.prediccion_eq2 AND m.goles_equipo1 > m.goles_equipo2) OR -- Ganó Local
+                     (p.prediccion_eq1 < p.prediccion_eq2 AND m.goles_equipo1 < m.goles_equipo2) OR -- Ganó Visitante
+                     (p.prediccion_eq1 = p.prediccion_eq2 AND m.goles_equipo1 = m.goles_equipo2)    -- Empate
+                THEN 1
+                -- Fallo
+                ELSE 0
+            END
+            WHERE p.id_partido = ?;
+        `;
+
+        connection.query(sqlPuntos, [id], (err2, result2) => {
+            if (err2) return res.status(500).json({ error: "Error calculando puntos: " + err2.message });
+
+            // 3. Actualizar el puntaje total en la tabla de Usuarios
+            const sqlTotal = `
+                UPDATE Usuario u
+                SET u.puntos = (SELECT COALESCE(SUM(p.puntos_ganados), 0) FROM Pronostico p WHERE p.id_usuario = u.id_usuario);
+            `;
+
+            connection.query(sqlTotal, (err3, result3) => {
+                if (err3) return res.status(500).json({ error: "Error actualizando totales: " + err3.message });
+                
+                res.json({ message: "Resultado guardado y puntos calculados exitosamente." });
+            });
+        });
+    });
+});
+
+// --- ADMIN: Obtener Tabla de Líderes (Ranking) ---
+app.get('/admin/leaderboard', (req, res) => {
+    const sql = "SELECT id_usuario, usuario, puntos FROM Usuario WHERE rol = 0 ORDER BY puntos DESC";
+    connection.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
 
 // ---------------- INICIO DEL SERVIDOR ----------------
 server.listen(port, "0.0.0.0", () => {

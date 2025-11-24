@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -23,7 +23,7 @@
 
             <div class="navbar">
                 <a href="QuinielaZo.html">Torneo</a>
-                <a href="chatsito.html">Chat</a>
+                <a href="chat.html">Chat</a>
                 <a href="recompensas.html">Recompensas</a>
                 <a href="Novedades.html">Novedades</a>
                 <a href="perfil.html">Perfil</a>
@@ -33,236 +33,53 @@
 
     <main class="torneo-main-content">
         <div class="torneo-tabs">
-            <a href="#" class="tab-item active-tab" data-tab="grupos">GRUPOS</a>
-            <a href="#" class="tab-item" data-tab="eliminacion">ELIMINACIÓN</a>
-            <a href="#" class="tab-item" data-tab="quiniela">QUINIELA</a>
+            <a href="#" class="tab-item active-tab" data-tab="quiniela">QUINIELA</a>
             <a href="#" class="tab-item" data-tab="historial">HISTORIAL</a>
             <a href="#" class="tab-item" data-tab="resultados">RESULTADOS</a>
         </div>
 
-        <section class="grupos-section active-content" id="grupos-content">
-            <div class="grupo-card">
-                <h3 class="grupo-titulo">GRUPO A</h3>
-                <div class="grupo-table-container">
-                    <table class="grupo-table">
-                        <thead>
-                            <tr>
-                                <th>EQUIPO</th>
-                                <th>PTS</th>
-                                <th>GF</th>
-                                <th>GC</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="equipo-cell">MX México</td>
-                                <td>6</td>
-                                <td>4</td>
-                                <td>1</td>
-                            </tr>
-                            <tr>
-                                <td class="equipo-cell">CA Canadá</td>
-                                <td>4</td>
-                                <td>3</td>
-                                <td>3</td>
-                            </tr>
-                            <tr>
-                                <td class="equipo-cell">JP Japón</td>
-                                <td>4</td>
-                                <td>2</td>
-                                <td>2</td>
-                            </tr>
-                            <tr>
-                                <td class="equipo-cell">GH Ghana</td>
-                                <td>3</td>
-                                <td>3</td>
-                                <td>6</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="grupo-card">
-                <h3 class="grupo-titulo">GRUPO B</h3>
-                <div class="grupo-table-container">
-                    <table class="grupo-table">
-                        <thead>
-                            <tr>
-                                <th>EQUIPO</th>
-                                <th>PTS</th>
-                                <th>GF</th>
-                                <th>GC</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="equipo-cell">US Estados Unidos</td>
-                                <td>7</td>
-                                <td>5</td>
-                                <td>2</td>
-                            </tr>
-                            <tr>
-                                <td class="equipo-cell">ES España</td>
-                                <td>4</td>
-                                <td>2</td>
-                                <td>2</td>
-                            </tr>
-                            <tr>
-                                <td class="equipo-cell">MA Marruecos</td>
-                                <td>4</td>
-                                <td>3</td>
-                                <td>4</td>
-                            </tr>
-                            <tr>
-                                <td class="equipo-cell">KR Korea</td>
-                                <td>1</td>
-                                <td>1</td>
-                                <td>3</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section class="eliminacion-section" id="eliminacion-content">
-            <div class="eliminacion-card-container">
-                <div class="eliminacion-card">
-                    <div class="equipo-eliminacion">
-                        <span class="codigo-pais">MX</span>
-                        <span class="nombre-equipo">México</span>
-                        <span class="marcador">2</span>
-                    </div>
-                    <div class="equipo-eliminacion">
-                        <span class="codigo-pais">ES</span>
-                        <span class="nombre-equipo">España</span>
-                        <span class="marcador">1</span>
-                    </div>
-                </div>
-                <div class="eliminacion-card">
-                    <div class="equipo-eliminacion">
-                        <span class="codigo-pais">UA</span>
-                        <span class="nombre-equipo">Estados Unidos</span>
-                        <span class="marcador">3</span>
-                    </div>
-                    <div class="equipo-eliminacion">
-                        <span class="codigo-pais">CA</span>
-                        <span class="nombre-equipo">Canadá</span>
-                        <span class="marcador">2</span>
-                    </div>
-                </div>
-                <div class="eliminacion-card">
-                    <div class="equipo-eliminacion">
-                        <span class="codigo-pais">AR</span>
-                        <span class="nombre-equipo">Argentina</span>
-                        <span class="marcador">1</span>
-                    </div>
-                    <div class="equipo-eliminacion">
-                        <span class="codigo-pais">DE</span>
-                        <span class="nombre-equipo">Alemania</span>
-                        <span class="marcador">1</span>
-                    </div>
-                </div>
-                <div class="eliminacion-card card-francia-japon">
-                    <div class="equipo-eliminacion">
-                        <span class="codigo-pais">FR</span>
-                        <span class="nombre-equipo">Francia</span>
-                        <span class="marcador">2</span>
-                    </div>
-                    <div class="equipo-eliminacion">
-                        <span class="codigo-pais">JP</span>
-                        <span class="nombre-equipo">Japón</span>
-                        <span class="marcador">0</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="quiniela-section" id="quiniela-content">
+        <section class="quiniela-section active-content" id="quiniela-content">
+            
             <div class="quiniela-menu-view active-view" id="quiniela-menu-view">
-                <h3 class="quiniela-menu-titulo">Elige una quiniela</h3>
-                <div class="quiniela-jornada-card" data-jornada="1">
-                    <h4 class="jornada-titulo">Jornada 1</h4>
-                    <p class="jornada-info">Pronostica los partidos de la primera ronda.</p>
-                </div>
-                <div class="quiniela-jornada-card" data-jornada="2">
-                    <h4 class="jornada-titulo">Jornada 2</h4>
-                    <p class="jornada-info">¡Nuevos partidos disponibles!</p>
+                <h3 class="quiniela-menu-titulo">Jornadas Disponibles</h3>
+                <div id="jornadas-container" style="width: 100%; max-width: 600px;">
+                    <p style="text-align:center; color:#999;">Cargando jornadas...</p>
                 </div>
             </div>
 
             <div class="quiniela-form-view" id="quiniela-form-view">
-                <h3 class="quiniela-form-titulo">Quiniela <span id="jornada-title"></span></h3>
-                <div class="partido-card">
-                    <h4 class="partido-titulo">México vs Japón</h4>
-                    <div class="equipo-quiniela">
-                        <span class="nombre-equipo-quiniela">México</span>
-                        <input type="number" class="quiniela-input" min="0">
+                <h3 class="quiniela-form-titulo">Pronóstico: <span id="jornada-title"></span></h3>
+                
+                <div id="partidos-container" style="width: 100%; max-width: 600px;">
                     </div>
-                    <div class="equipo-quiniela">
-                        <span class="nombre-equipo-quiniela">Japón</span>
-                        <input type="number" class="quiniela-input" min="0">
-                    </div>
-                </div>
-                <div class="partido-card">
-                    <h4 class="partido-titulo">Estados Unidos vs España</h4>
-                    <div class="equipo-quiniela">
-                        <span class="nombre-equipo-quiniela">Estados Unidos</span>
-                        <input type="number" class="quiniela-input" min="0">
-                    </div>
-                    <div class="equipo-quiniela">
-                        <span class="nombre-equipo-quiniela">España</span>
-                        <input type="number" class="quiniela-input" min="0">
-                    </div>
-                </div>
+
                 <button class="submit-button">Enviar Quiniela</button>
                 <button class="back-button"><i class="fas fa-arrow-left"></i> Regresar</button>
             </div>
         </section>
 
         <section class="historial-section" id="historial-content">
-            <div class="historial-card">
-                <h4 class="historial-title">Quiniela enviada el 15/09/2025</h4>
-                <p class="historial-subtitle">Jornada 1</p>
-                <div class="historial-partido">
-                    <span class="historial-equipo">México</span>
-                    <span class="historial-pronostico">2</span>
-                    <span style="font-size: 0.8em; color: #999;">-</span>
-                    <span class="historial-pronostico">1</span>
-                    <span class="historial-equipo">Japón</span>
-                </div>
-                <div class="historial-partido">
-                    <span class="historial-equipo">Estados Unidos</span>
-                    <span class="historial-pronostico">3</span>
-                    <span style="font-size: 0.8em; color: #999;">-</span>
-                    <span class="historial-pronostico">2</span>
-                    <span class="historial-equipo">España</span>
-                </div>
-            </div>
-            <div class="historial-card">
-                <h4 class="historial-title">Quiniela enviada el 14/09/2025</h4>
-                <p class="historial-subtitle">Jornada 0</p>
-                <div class="historial-partido">
-                    <span class="historial-equipo">Argentina</span>
-                    <span class="historial-pronostico">1</span>
-                    <span style="font-size: 0.8em; color: #999;">-</span>
-                    <span class="historial-pronostico">1</span>
-                    <span class="historial-equipo">Alemania</span>
-                </div>
-                <div class="historial-partido">
-                    <span class="historial-equipo">Francia</span>
-                    <span class="historial-pronostico">2</span>
-                    <span style="font-size: 0.8em; color: #999;">-</span>
-                    <span class="historial-pronostico">0</span>
-                    <span class="historial-equipo">Japón</span>
-                </div>
+            <div class="resultados-vacio-card">
+                <h4 class="resultados-vacio-titulo">Historial de Predicciones</h4>
+                <p class="resultados-vacio-texto">Próximamente podrás ver aquí tus quinielas pasadas.</p>
             </div>
         </section>
 
         <section class="resultados-section" id="resultados-content">
-            <div class="resultados-vacio-card">
-                <h4 class="resultados-vacio-titulo">¡Aún no hay resultados!</h4>
-                <p class="resultados-vacio-texto">Regresa más tarde para ver los resultados oficiales de la jornada.</p>
+            <div class="admin-card" style="width: 100%; max-width: 800px; background-color: #222025; border-radius: 16px; padding: 20px; margin-top: 20px;">
+                <h4 class="card-title" style="text-align: center; color: #ffd700; font-family: 'Montserrat', sans-serif;">Tabla General de Posiciones</h4>
+                <table class="grupo-table">
+                    <thead>
+                        <tr>
+                            <th>Pos</th>
+                            <th>Jugador</th>
+                            <th>Puntos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body-user">
+                        <tr><td colspan="3">Cargando...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </section>
     </main>
@@ -283,67 +100,207 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userId = localStorage.getItem('userId');
+            if (!userId) {
+                alert("Inicia sesión para jugar.");
+                window.location.href = 'inicio.html';
+                return;
+            }
+
+            // --- ELEMENTOS UI ---
             const tabs = document.querySelectorAll('.tab-item');
             const sections = document.querySelectorAll('section[id$="-content"]');
             
-            const quinielaMenu = document.getElementById('quiniela-menu-view');
-            const quinielaForm = document.getElementById('quiniela-form-view');
-            const jornadaCards = document.querySelectorAll('.quiniela-jornada-card');
+            const menuView = document.getElementById('quiniela-menu-view');
+            const formView = document.getElementById('quiniela-form-view');
+            const jornadasContainer = document.getElementById('jornadas-container');
+            const partidosContainer = document.getElementById('partidos-container');
+            const jornadaTitle = document.getElementById('jornada-title');
             const backButton = document.querySelector('.back-button');
             const submitButton = document.querySelector('.submit-button');
             const notification = document.getElementById('notification-message');
-            const jornadaTitle = document.getElementById('jornada-title');
+            const leaderboardBody = document.getElementById('leaderboard-body-user');
 
+            // --- NAVEGACIÓN DE TABS ---
             tabs.forEach(tab => {
                 tab.addEventListener('click', (e) => {
                     e.preventDefault();
-
                     tabs.forEach(item => item.classList.remove('active-tab'));
                     sections.forEach(sec => sec.classList.remove('active-content'));
 
                     e.target.classList.add('active-tab');
-
                     const targetId = e.target.dataset.tab;
-                    const targetSection = document.getElementById(targetId + '-content');
-                    if (targetSection) {
-                        targetSection.classList.add('active-content');
-                        
-                        // Si se hace clic en la pestaña de quiniela, muestra el menú inicial
-                        if (targetId === 'quiniela') {
-                            quinielaMenu.classList.add('active-view');
-                            quinielaForm.classList.remove('active-view');
-                        }
+                    document.getElementById(targetId + '-content').classList.add('active-content');
+
+                    // Si va a resultados, cargamos el ranking
+                    if(targetId === 'resultados') loadLeaderboard();
+                    // Si vuelve a quiniela, aseguramos ver el menú
+                    if(targetId === 'quiniela') {
+                        formView.classList.remove('active-view');
+                        menuView.classList.add('active-view');
+                        loadJornadas(); // Recargar por si hay nuevas
                     }
                 });
             });
 
-            jornadaCards.forEach(card => {
-                card.addEventListener('click', () => {
-                    const jornada = card.dataset.jornada;
-                    jornadaTitle.textContent = `Jornada ${jornada}`;
-                    quinielaMenu.classList.remove('active-view');
-                    quinielaForm.classList.add('active-view');
+            // --- 1. CARGAR JORNADAS DISPONIBLES ---
+            async function loadJornadas() {
+                try {
+                    const res = await fetch('/api/quiniela/jornadas');
+                    const jornadas = await res.json();
+                    
+                    jornadasContainer.innerHTML = '';
+
+                    if (jornadas.length === 0) {
+                        jornadasContainer.innerHTML = '<p style="text-align:center; margin-top:20px;">No hay quinielas activas en este momento.</p>';
+                        return;
+                    }
+
+                    jornadas.forEach(nombreJornada => {
+                        const card = document.createElement('div');
+                        card.className = 'quiniela-jornada-card';
+                        card.innerHTML = `
+                            <h4 class="jornada-titulo">${nombreJornada}</h4>
+                            <p class="jornada-info">Haz clic para realizar tus pronósticos.</p>
+                        `;
+                        card.addEventListener('click', () => loadMatches(nombreJornada));
+                        jornadasContainer.appendChild(card);
+                    });
+
+                } catch (err) {
+                    console.error("Error:", err);
+                    jornadasContainer.innerHTML = '<p style="color:red; text-align:center;">Error al conectar con el servidor.</p>';
+                }
+            }
+
+            // --- 2. CARGAR PARTIDOS DE UNA JORNADA ---
+            async function loadMatches(nombreJornada) {
+                jornadaTitle.textContent = nombreJornada;
+                
+                // Cambiar vista
+                menuView.classList.remove('active-view');
+                formView.classList.add('active-view');
+                partidosContainer.innerHTML = '<p style="text-align:center;">Cargando partidos...</p>';
+
+                try {
+                    const res = await fetch(`/api/quiniela/partidos/${encodeURIComponent(nombreJornada)}`);
+                    const partidos = await res.json();
+
+                    partidosContainer.innerHTML = '';
+
+                    partidos.forEach(p => {
+                        const card = document.createElement('div');
+                        card.className = 'partido-card';
+                        card.dataset.id = p.id_partido;
+                        card.innerHTML = `
+                            <h4 class="partido-titulo">${p.equipo1} vs ${p.equipo2}</h4>
+                            <div class="equipo-quiniela">
+                                <span class="nombre-equipo-quiniela">${p.equipo1}</span>
+                                <input type="number" class="quiniela-input g1" min="0" placeholder="-">
+                            </div>
+                            <div class="equipo-quiniela">
+                                <span class="nombre-equipo-quiniela">${p.equipo2}</span>
+                                <input type="number" class="quiniela-input g2" min="0" placeholder="-">
+                            </div>
+                        `;
+                        partidosContainer.appendChild(card);
+                    });
+
+                } catch (err) {
+                    console.error(err);
+                    alert("Error al cargar los partidos.");
+                }
+            }
+
+            // --- 3. ENVIAR PRONÓSTICOS ---
+            submitButton.addEventListener('click', async () => {
+                const inputs = partidosContainer.querySelectorAll('.partido-card');
+                const predicciones = [];
+                let completos = true;
+
+                inputs.forEach(card => {
+                    const id_partido = card.dataset.id;
+                    const g1 = card.querySelector('.g1').value;
+                    const g2 = card.querySelector('.g2').value;
+
+                    if(g1 === '' || g2 === '') {
+                        completos = false;
+                    } else {
+                        predicciones.push({ id_partido, g1, g2 });
+                    }
                 });
+
+                if (predicciones.length === 0) return alert("Por favor, llena al menos un pronóstico.");
+                
+                // Opcional: Validar si quieres obligar a llenar todos
+                // if (!completos) return alert("Por favor, completa todos los partidos de la quiniela.");
+
+                try {
+                    const res = await fetch('/api/pronosticos', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ id_usuario: userId, predicciones })
+                    });
+
+                    if(res.ok) {
+                        notification.classList.add('show');
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                            // Regresar al menú
+                            formView.classList.remove('active-view');
+                            menuView.classList.add('active-view');
+                        }, 2500);
+                    } else {
+                        alert("Hubo un problema al guardar tu quiniela.");
+                    }
+                } catch(err) {
+                    console.error(err);
+                    alert("Error de conexión.");
+                }
             });
 
-            if (backButton) {
-                backButton.addEventListener('click', () => {
-                    quinielaForm.classList.remove('active-view');
-                    quinielaMenu.classList.add('active-view');
-                });
+            // --- 4. CARGAR RANKING (LÍDERES) ---
+            async function loadLeaderboard() {
+                try {
+                    const res = await fetch('/admin/leaderboard'); // Usamos la misma ruta pública
+                    const users = await res.json();
+                    
+                    leaderboardBody.innerHTML = '';
+                    if(users.length === 0) {
+                        leaderboardBody.innerHTML = '<tr><td colspan="3">Aún no hay puntuaciones.</td></tr>';
+                        return;
+                    }
+
+                    users.forEach((user, index) => {
+                        const tr = document.createElement('tr');
+                        let icon = `${index + 1}`;
+                        if(index === 0) icon = '🥇 1';
+                        if(index === 1) icon = '🥈 2';
+                        if(index === 2) icon = '🥉 3';
+
+                        // Resaltar al usuario actual
+                        if(user.id_usuario == userId) tr.style.backgroundColor = '#4a0000';
+
+                        tr.innerHTML = `
+                            <td>${icon}</td>
+                            <td>${user.usuario}</td>
+                            <td style="font-weight:bold; color:#ffd700;">${user.puntos} pts</td>
+                        `;
+                        leaderboardBody.appendChild(tr);
+                    });
+                } catch (err) { console.error(err); }
             }
-            
-            if (submitButton) {
-                submitButton.addEventListener('click', () => {
-                    notification.classList.add('show');
-                    setTimeout(() => {
-                        notification.classList.remove('show');
-                    }, 3000);
-                });
-            }
+
+            // Botón Regresar
+            backButton.addEventListener('click', () => {
+                formView.classList.remove('active-view');
+                menuView.classList.add('active-view');
+            });
+
+            // Cargar inicial
+            loadJornadas();
         });
     </script>
 </body>
-
 </html>

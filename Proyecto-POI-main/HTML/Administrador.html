@@ -18,11 +18,7 @@
             --text-light: #aaa;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Poppins', sans-serif;
@@ -30,10 +26,7 @@
             color: var(--text-color);
         }
 
-        .admin-container {
-            display: flex;
-            min-height: 100vh;
-        }
+        .admin-container { display: flex; min-height: 100vh; }
 
         /* Sidebar */
         .sidebar {
@@ -45,26 +38,11 @@
             box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
         }
 
-        .logo {
-            text-align: center;
-            margin-bottom: 40px;
-        }
+        .logo { text-align: center; margin-bottom: 40px; }
+        .logo img { width: 80px; margin-bottom: 10px; }
+        .logo h2 { color: var(--primary-color); font-family: 'Montserrat', sans-serif; font-size: 1.5em; }
 
-        .logo img {
-            width: 80px;
-            margin-bottom: 10px;
-        }
-
-        .logo h2 {
-            color: var(--primary-color);
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.5em;
-        }
-
-        .admin-nav ul {
-            list-style: none;
-        }
-
+        .admin-nav ul { list-style: none; }
         .admin-nav li a {
             display: block;
             color: var(--text-light);
@@ -74,42 +52,20 @@
             border-radius: 8px;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
-
-        .admin-nav li a:hover,
-        .admin-nav li a.active {
+        .admin-nav li a:hover, .admin-nav li a.active {
             background-color: var(--card-color);
             color: var(--primary-color);
         }
-
-        .admin-nav li a i {
-            margin-right: 10px;
-        }
+        .admin-nav li a i { margin-right: 10px; }
 
         /* Main Content */
-        .content-wrapper {
-            flex-grow: 1;
-            padding: 40px;
-        }
-
-        .admin-header {
-            margin-bottom: 40px;
-        }
-
-        .admin-header h1 {
-            color: var(--primary-color);
-            font-family: 'Montserrat', sans-serif;
-        }
+        .content-wrapper { flex-grow: 1; padding: 40px; }
+        .admin-header { margin-bottom: 40px; }
+        .admin-header h1 { color: var(--primary-color); font-family: 'Montserrat', sans-serif; }
 
         /* Sections */
-        .admin-section {
-            display: none;
-        }
-
-        .admin-section.active {
-            display: block;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
+        .admin-section { display: none; }
+        .admin-section.active { display: block; animation: fadeIn 0.5s ease-in-out; }
         .admin-section h2 {
             margin-bottom: 20px;
             color: var(--text-color);
@@ -124,34 +80,15 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             margin-bottom: 20px;
         }
+        .card-title { color: var(--primary-color); font-family: 'Montserrat', sans-serif; margin-bottom: 15px; }
 
-        .card-title {
-            color: var(--primary-color);
-            font-family: 'Montserrat', sans-serif;
-            margin-bottom: 15px;
-        }
+        /* Tablas */
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid #444; }
+        .data-table th { background-color: #333; color: var(--primary-color); }
 
-        /* Tablas de datos */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #444;
-        }
-
-        .data-table th {
-            background-color: #333;
-            color: var(--primary-color);
-        }
-
-        /* Botones y formularios */
-        .edit-btn, .submit-btn, .add-button, .delete-btn {
+        /* Botones y Forms */
+        .edit-btn, .submit-btn, .add-button, .delete-btn, .action-btn, .complete-btn {
             padding: 8px 15px;
             border-radius: 8px;
             border: none;
@@ -159,212 +96,47 @@
             transition: background-color 0.3s ease;
             color: #fff;
         }
+        .edit-btn { background-color: #555; }
+        .edit-btn:hover { background-color: #777; }
+        .submit-btn { background-color: var(--secondary-color); margin-top: 15px; }
+        .submit-btn:hover { background-color: #a00000; }
+        .add-button { background-color: var(--primary-color); color: var(--background-color); font-weight: bold; margin-bottom: 20px; }
+        .add-button:hover { background-color: #ffde40; }
+        .delete-btn { background-color: #f44336; }
+        .delete-btn:hover { background-color: #d32f2f; }
+        .action-btn { background-color: #2196F3; }
+        .action-btn:hover { background-color: #0b7dda; }
+        .complete-btn { background-color: #4CAF50; margin-left: 10px; }
+        .complete-btn:hover { background-color: #45a049; }
 
-        .edit-btn {
-            background-color: #555;
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--primary-color); }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 10px; border-radius: 8px;
+            border: 1px solid #555; background-color: #333; color: var(--text-color);
         }
 
-        .edit-btn:hover {
-            background-color: #777;
-        }
-
-        .submit-btn {
-            background-color: var(--secondary-color);
-            margin-top: 15px;
-        }
-
-        .submit-btn:hover {
-            background-color: #a00000;
-        }
-
-        .add-button {
-            background-color: var(--primary-color);
-            color: var(--background-color);
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .add-button:hover {
-            background-color: #ffde40;
-        }
-
-        .delete-btn {
-            background-color: #f44336;
-            margin-left: 10px;
-        }
+        /* Estilos específicos */
+        .quiniela-match { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .quiniela-match-input-group { display: flex; align-items: center; gap: 10px; width: 100%; }
+        .quiniela-match-input-group input[type="text"] { flex-grow: 1; }
         
-        .delete-btn:hover {
-            background-color: #d32f2f;
-        }
+        .elim-match { display: flex; align-items: center; justify-content: space-between; }
+        .match-actions { display: flex; align-items: center; gap: 10px; }
+        .match-completed-status { color: #4CAF50; font-weight: bold; margin-left: 10px; }
 
-        .complete-btn {
-            background-color: #4CAF50;
-            margin-left: 10px;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+        .insignia-item { display: flex; align-items: center; background-color: #333; padding: 15px; border-radius: 12px; gap: 15px; margin-bottom: 10px; }
+        .insignia-item img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
+        .insignia-info { flex-grow: 1; }
+        .insignia-info h4 { color: var(--primary-color); margin-bottom: 5px; }
+        .insignia-info p { font-size: 0.9em; color: var(--text-light); }
 
-        .complete-btn:hover {
-            background-color: #45a049;
-        }
+        .task-list { display: flex; flex-direction: column; gap: 10px; }
+        .task-item { display: flex; align-items: center; justify-content: space-between; background-color: #333; padding: 15px; border-radius: 8px; }
+        .task-item .task-info h4 { color: var(--primary-color); margin-bottom: 5px; }
+        .task-item .task-info p { font-size: 0.9em; color: var(--text-light); }
 
-        /* Estilos específicos de secciones */
-        .elim-match,
-        .quiniela-match {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .quiniela-match-input-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-        }
-
-        .quiniela-match-input-group input[type="text"] {
-            flex-grow: 1;
-            padding: 8px;
-            background-color: #333;
-            border: 1px solid #555;
-            border-radius: 5px;
-            color: var(--text-color);
-        }
-
-        .elim-match input,
-        .quiniela-match input[type="number"] {
-            width: 60px;
-            padding: 8px;
-            background-color: #333;
-            border: 1px solid #555;
-            border-radius: 5px;
-            color: var(--text-color);
-            text-align: center;
-        }
-        
-        /* Contenedores de insignias */
-        #insignias-list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* Insignias */
-        .insignia-item {
-            display: flex;
-            align-items: center;
-            background-color: #333;
-            padding: 15px;
-            border-radius: 12px;
-            width: 100%;
-            gap: 15px;
-        }
-        
-        .insignia-item .insignia-content {
-            flex-grow: 1;
-        }
-
-        .insignia-item img {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .insignia-info h4 {
-            color: var(--primary-color);
-        }
-
-        .insignia-info p {
-            font-size: 0.9em;
-            color: var(--text-light);
-        }
-
-        .remove-insignia-btn {
-            background-color: #f44336;
-            color: #fff;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        .remove-insignia-btn:hover {
-            background-color: #d32f2f;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--primary-color);
-        }
-
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #555;
-            background-color: #333;
-            color: var(--text-color);
-        }
-
-        /* Estilos para las tareas */
-        .task-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .task-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: #333;
-            padding: 15px;
-            border-radius: 8px;
-        }
-        
-        .task-item .task-info {
-            flex-grow: 1;
-        }
-
-        .task-item .task-info h4 {
-            color: var(--primary-color);
-        }
-
-        .task-item .task-info p {
-            font-size: 0.9em;
-            color: var(--text-light);
-            margin-top: 5px;
-        }
-        
-        .match-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .match-completed-status {
-            color: #4CAF50;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -396,16 +168,16 @@
                     <h4 class="card-title">Agregar nuevo partido</h4>
                     <form id="add-match-form">
                         <div class="form-group">
-                            <label for="team1-name">Equipo 1</label>
+                            <label>Equipo 1</label>
                             <input type="text" id="team1-name" required>
                         </div>
                         <div class="form-group">
-                            <label for="team2-name">Equipo 2</label>
+                            <label>Equipo 2</label>
                             <input type="text" id="team2-name" required>
                         </div>
                         <div class="form-group">
-                            <label for="match-stage">Fase del partido</label>
-                            <select id="match-stage" style="width:100%; padding:10px; border-radius:8px; background:#333; color:#fff; border:1px solid #555;">
+                            <label>Fase del partido</label>
+                            <select id="match-stage">
                                 <option value="Grupo A">Fase de Grupo A</option>
                                 <option value="Grupo B">Fase de Grupo B</option>
                                 <option value="Octavos">Octavos de Final</option>
@@ -426,25 +198,35 @@
 
             <section id="quinielas-section" class="admin-section">
                 <h2>Gestión de Quinielas (Jornadas)</h2>
+                
                 <div class="admin-card">
                     <h4 class="card-title">Crear Nueva Jornada</h4>
-                    <p style="color:#aaa; font-size:0.9em; margin-bottom:15px;">
-                        Aquí puedes crear una lista de partidos que formarán una "Jornada" o "Quiniela" para que los usuarios apuesten.
-                    </p>
+                    <p style="color:#aaa; font-size:0.9em; margin-bottom:15px;">Crea una lista de partidos para que los usuarios apuesten.</p>
                     <form id="quiniela-form">
                         <div class="form-group">
                             <label style="color:#ffd700">Nombre de la Jornada (Ej: Jornada 1)</label>
                             <input type="text" id="jornada-name" placeholder="Escribe el nombre..." required>
                         </div>
-
                         <button type="button" class="add-button" id="add-match-btn"><i class="fas fa-plus"></i> Agregar Partido a la Lista</button>
-                        
-                        <div id="quiniela-matches-container" style="margin-top:15px; display:flex; flex-direction:column; gap:10px;">
-                            </div>
-                        
+                        <div id="quiniela-matches-container" style="margin-top:15px; display:flex; flex-direction:column; gap:10px;"></div>
                         <br>
                         <button type="submit" class="submit-btn"><i class="fas fa-save"></i> Publicar Jornada</button>
                     </form>
+                </div>
+
+                <div class="admin-card">
+                    <h4 class="card-title">Jornadas Creadas</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre de la Jornada</th>
+                                <th>Partidos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jornadas-list-body">
+                            </tbody>
+                    </table>
                 </div>
             </section>
             
@@ -454,11 +236,11 @@
                     <h4 class="card-title">Agregar nueva tarea</h4>
                     <form id="add-task-form">
                         <div class="form-group">
-                            <label for="task-title">Título de la tarea</label>
+                            <label>Título de la tarea</label>
                             <input type="text" id="task-title" required>
                         </div>
                         <div class="form-group">
-                            <label for="task-desc">Descripción</label>
+                            <label>Descripción</label>
                             <textarea id="task-desc" required></textarea>
                         </div>
                         <button type="submit" class="add-button"><i class="fas fa-plus"></i> Agregar Tarea</button>
@@ -477,21 +259,20 @@
                     <h4 class="card-title">Agregar nueva insignia</h4>
                     <form id="add-insignia-form">
                         <div class="form-group">
-                            <label for="insignia-name">Nombre de la insignia</label>
+                            <label>Nombre</label>
                             <input type="text" id="insignia-name" required>
                         </div>
                         <div class="form-group">
-                            <label for="insignia-desc">Descripción</label>
+                            <label>Descripción</label>
                             <textarea id="insignia-desc" required></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="insignia-img">URL de la imagen</label>
+                            <label>URL de la imagen</label>
                             <input type="text" id="insignia-img" required placeholder="../Resources/Imagenes/trofeo.png">
                         </div>
                         <button type="submit" class="add-button"><i class="fas fa-plus"></i> Agregar Insignia</button>
                     </form>
                 </div>
-
                 <div class="admin-card">
                     <h4 class="card-title">Insignias actuales</h4>
                     <div id="insignias-list-container">
@@ -501,22 +282,28 @@
 
             <section id="resultados-section" class="admin-section">
                 <h2>Resultados de Quinielas</h2>
+                
                 <div class="admin-card">
-                    <h4 class="card-title">Resultados Globales</h4>
-                    <p style="color:#aaa;">(Esta sección mostrará la tabla de líderes próximamente)</p>
+                    <h4 class="card-title">Definir Marcadores (Partidos Pendientes)</h4>
+                    <p style="color:#aaa; font-size:0.9em; margin-bottom:15px;">
+                        Ingresa el marcador final para cerrar el partido y repartir los puntos a los usuarios.
+                    </p>
+                    <div id="grading-matches-container" style="display:flex; flex-direction:column; gap:10px;">
+                        </div>
+                </div>
+
+                <div class="admin-card">
+                    <h4 class="card-title">Tabla General de Posiciones</h4>
                     <table class="data-table">
                         <thead>
                             <tr>
+                                <th>Posición</th>
                                 <th>Jugador</th>
                                 <th>Puntos Totales</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>Usuario Ejemplo</td>
-                                <td>0</td>
-                            </tr>
-                        </tbody>
+                        <tbody id="leaderboard-body">
+                            </tbody>
                     </table>
                 </div>
             </section>
@@ -525,299 +312,336 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Referencias a elementos del DOM
+            // Referencias DOM
             const navLinks = document.querySelectorAll('.admin-nav a');
             const sections = document.querySelectorAll('.admin-section');
             
-            // Formularios y Contenedores
+            // Formularios
             const addMatchForm = document.getElementById('add-match-form');
             const matchListContainer = document.getElementById('match-list-container');
-            
             const addTaskForm = document.getElementById('add-task-form');
             const taskListContainer = document.getElementById('task-list-container');
-            
             const addInsigniaForm = document.getElementById('add-insignia-form');
             const insigniasListContainer = document.getElementById('insignias-list-container');
+            
+            // Quinielas
+            const quinielaForm = document.getElementById('quiniela-form');
+            const matchesContainerQuiniela = document.getElementById('quiniela-matches-container');
+            const addMatchBtnQuiniela = document.getElementById('add-match-btn');
+            const jornadasListBody = document.getElementById('jornadas-list-body');
 
-            // --- NAVEGACIÓN (Tabs) ---
+            // Resultados
+            const gradingContainer = document.getElementById('grading-matches-container');
+            const leaderboardBody = document.getElementById('leaderboard-body');
+
+            // --- NAVEGACIÓN ---
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     navLinks.forEach(item => item.classList.remove('active'));
                     sections.forEach(sec => sec.classList.remove('active'));
-
                     const targetSection = e.target.dataset.section;
-                    const sectionEl = document.getElementById(targetSection + '-section');
-                    if(sectionEl) {
-                        sectionEl.classList.add('active');
-                        e.target.classList.add('active');
-                    }
+                    document.getElementById(targetSection + '-section').classList.add('active');
+                    e.target.classList.add('active');
                 });
             });
 
             // =========================================================
-            // 1. GESTIÓN DE PARTIDOS (API REAL - Individual)
+            // 1. GESTIÓN DE PARTIDOS (Individual)
             // =========================================================
-
             async function renderMatches() {
                 try {
                     const res = await fetch('/admin/matches');
                     const matches = await res.json();
-                    
                     matchListContainer.innerHTML = '';
                     matches.forEach(match => {
                         const div = document.createElement('div');
                         div.classList.add('admin-card', 'elim-match');
-                        
-                        // Determinar estado para mostrar botón o texto
                         const statusHtml = match.estatus === 'finalizado' 
-                            ? `<span class="match-completed-status"><i class="fas fa-check-circle"></i> Finalizado</span>`
+                            ? `<span class="match-completed-status"><i class="fas fa-check-circle"></i> Finalizado (${match.goles_equipo1}-${match.goles_equipo2})</span>`
                             : `<button class="complete-btn" onclick="completeMatch(${match.id_partido})"><i class="fas fa-check"></i> Terminar</button>`;
 
                         div.innerHTML = `
                             <div style="flex:1">
                                 <h4 style="color:#ffd700; margin-bottom:5px;">${match.fase}</h4>
-                                <div style="font-size:1.1em;">
-                                    <b>${match.equipo1}</b> vs <b>${match.equipo2}</b>
-                                </div>
+                                <div style="font-size:1.1em;"><b>${match.equipo1}</b> vs <b>${match.equipo2}</b></div>
                             </div>
                             <div class="match-actions">
                                 ${statusHtml}
-                                <button class="delete-btn" onclick="deleteMatch(${match.id_partido})">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
+                                <button class="delete-btn" onclick="deleteMatch(${match.id_partido})"><i class="fas fa-trash-alt"></i></button>
                             </div>
                         `;
                         matchListContainer.appendChild(div);
                     });
-                } catch (err) {
-                    console.error("Error cargando partidos:", err);
-                }
+                    // Actualizar también la lista de calificación
+                    renderGradingMatches();
+                } catch (err) { console.error("Error cargando partidos:", err); }
             }
 
-            // Agregar Partido Individual
             addMatchForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const equipo1 = document.getElementById('team1-name').value;
                 const equipo2 = document.getElementById('team2-name').value;
                 const fase = document.getElementById('match-stage').value;
-
-                if(!equipo1 || !equipo2) return alert("Llena los nombres de los equipos");
-
                 try {
                     const res = await fetch('/admin/matches', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ equipo1, equipo2, fase })
                     });
-                    
-                    if(res.ok) {
-                        alert("Partido agregado correctamente");
-                        addMatchForm.reset();
-                        renderMatches(); 
-                    } else {
-                        alert("Error al agregar partido");
-                    }
-                } catch (err) {
-                    console.error(err);
-                }
+                    if(res.ok) { alert("Partido agregado"); addMatchForm.reset(); renderMatches(); }
+                } catch (err) { console.error(err); }
             });
 
-            // =========================================================
-            // 2. GESTIÓN DE QUINIELAS (CREAR JORNADAS EN LOTE)
-            // =========================================================
+            window.deleteMatch = async (id) => {
+                if(!confirm("¿Eliminar este partido?")) return;
+                try { await fetch(`/admin/matches/${id}`, { method: 'DELETE' }); renderMatches(); } catch(err){}
+            };
             
-            const quinielaForm = document.getElementById('quiniela-form');
-            const matchesContainerQuiniela = document.getElementById('quiniela-matches-container');
-            const addMatchBtnQuiniela = document.getElementById('add-match-btn');
+            window.completeMatch = async (id) => {
+                // Redirigir visualmente a la pestaña de resultados para poner el marcador
+                document.querySelector('[data-section="resultados"]').click();
+                alert("Por favor ingresa el marcador en la sección de Resultados.");
+            };
 
-            // Botón para agregar una fila visual de partido
+            // =========================================================
+            // 2. GESTIÓN DE QUINIELAS (JORNADAS)
+            // =========================================================
             addMatchBtnQuiniela.addEventListener('click', () => {
                 const div = document.createElement('div');
                 div.classList.add('quiniela-match');
                 div.innerHTML = `
                     <div class="quiniela-match-input-group">
-                        <input type="text" class="team1" placeholder="Equipo Local" required>
+                        <input type="text" class="team1" placeholder="Local" required>
                         <span style="color:#aaa">vs</span>
-                        <input type="text" class="team2" placeholder="Equipo Visitante" required>
+                        <input type="text" class="team2" placeholder="Visitante" required>
                     </div>
-                    <button type="button" class="delete-btn" onclick="this.parentElement.remove()">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    <button type="button" class="delete-btn" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
                 `;
                 matchesContainerQuiniela.appendChild(div);
             });
 
-            // Enviar todo el lote al servidor
             quinielaForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
                 const nombreJornada = document.getElementById('jornada-name').value;
                 const filas = matchesContainerQuiniela.querySelectorAll('.quiniela-match');
                 const partidos = [];
-
                 filas.forEach(fila => {
                     const eq1 = fila.querySelector('.team1').value;
                     const eq2 = fila.querySelector('.team2').value;
-                    if(eq1 && eq2) {
-                        partidos.push({ eq1, eq2 });
-                    }
+                    if(eq1 && eq2) partidos.push({ eq1, eq2 });
                 });
 
-                if(partidos.length === 0) return alert("Agrega al menos un partido a la jornada.");
+                if(partidos.length === 0) return alert("Agrega al menos un partido.");
 
                 try {
                     const res = await fetch('/admin/quiniela/batch', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ nombreJornada, partidos })
                     });
-
                     if(res.ok) {
-                        alert(`¡${nombreJornada} publicada con éxito!`);
-                        matchesContainerQuiniela.innerHTML = ''; // Limpiar formulario
+                        alert(`¡${nombreJornada} publicada!`);
+                        matchesContainerQuiniela.innerHTML = '';
                         document.getElementById('jornada-name').value = '';
-                        renderMatches(); // Recargar la lista general también
-                    } else {
-                        alert("Error al guardar la jornada.");
+                        renderMatches(); 
+                        renderJornadasList();
                     }
-                } catch (err) {
-                    console.error(err);
-                    alert("Error de conexión.");
-                }
+                } catch (err) { alert("Error de conexión."); }
             });
 
+            async function renderJornadasList() {
+                try {
+                    const res = await fetch('/admin/quiniela/list');
+                    const jornadas = await res.json();
+                    jornadasListBody.innerHTML = '';
+                    if (jornadas.length === 0) {
+                        jornadasListBody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#999;">No hay jornadas creadas.</td></tr>';
+                        return;
+                    }
+                    jornadas.forEach(j => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${j.fase}</td>
+                            <td>${j.total} partidos</td>
+                            <td>
+                                <button class="action-btn" onclick="editJornada('${j.fase}')" title="Editar"><i class="fas fa-edit"></i></button>
+                                <button class="delete-btn" onclick="deleteJornada('${j.fase}')" title="Eliminar"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        `;
+                        jornadasListBody.appendChild(tr);
+                    });
+                } catch (err) {}
+            }
+
+            window.deleteJornada = async (nombre) => {
+                if (!confirm(`¿Borrar ${nombre} completa?`)) return;
+                try { await fetch(`/admin/quiniela/${encodeURIComponent(nombre)}`, { method: 'DELETE' }); renderJornadasList(); renderMatches(); } catch (err) {}
+            };
+
+            window.editJornada = async (nombreActual) => {
+                const nuevoNombre = prompt("Nuevo nombre:", nombreActual);
+                if (!nuevoNombre || nuevoNombre === nombreActual) return;
+                try { 
+                    await fetch(`/admin/quiniela/${encodeURIComponent(nombreActual)}`, {
+                        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nuevoNombre })
+                    });
+                    renderJornadasList(); renderMatches();
+                } catch (err) {}
+            };
 
             // =========================================================
-            // 3. GESTIÓN DE TAREAS (API REAL)
+            // 3. TAREAS & 4. INSIGNIAS
             // =========================================================
-
             async function renderTasks() {
                 try {
                     const res = await fetch('/admin/tasks');
                     const tasks = await res.json();
-                    
                     taskListContainer.innerHTML = '';
                     tasks.forEach(task => {
                         const div = document.createElement('div');
                         div.classList.add('task-item');
                         div.innerHTML = `
-                            <div class="task-info">
-                                <h4>${task.titulo}</h4>
-                                <p>${task.descripcion}</p>
-                            </div>
-                            <button class="delete-btn" onclick="deleteTask(${task.id_tarea})">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
+                            <div class="task-info"><h4>${task.titulo}</h4><p>${task.descripcion}</p></div>
+                            <button class="delete-btn" onclick="deleteTask(${task.id_tarea})"><i class="fas fa-trash-alt"></i></button>
                         `;
                         taskListContainer.appendChild(div);
                     });
-                } catch (err) {
-                    console.error("Error cargando tareas:", err);
-                }
+                } catch (err) {}
             }
-
             addTaskForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const titulo = document.getElementById('task-title').value;
                 const descripcion = document.getElementById('task-desc').value;
-
                 try {
                     const res = await fetch('/admin/tasks', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ titulo, descripcion })
                     });
-                    if(res.ok) {
-                        alert("Tarea creada");
-                        addTaskForm.reset();
-                        renderTasks();
-                    }
-                } catch (err) { console.error(err); }
+                    if(res.ok) { alert("Tarea creada"); addTaskForm.reset(); renderTasks(); }
+                } catch (err) {}
             });
-
             window.deleteTask = async (id) => {
                 if(!confirm("¿Borrar tarea?")) return;
-                await fetch(`/admin/tasks/${id}`, { method: 'DELETE' });
-                renderTasks();
+                await fetch(`/admin/tasks/${id}`, { method: 'DELETE' }); renderTasks();
             };
-
-
-            // =========================================================
-            // 4. GESTIÓN DE INSIGNIAS (API REAL)
-            // =========================================================
 
             async function renderBadges() {
                 try {
                     const res = await fetch('/admin/badges');
                     const badges = await res.json();
-                    
                     insigniasListContainer.innerHTML = '';
                     badges.forEach(badge => {
                         const div = document.createElement('div');
                         div.classList.add('insignia-item');
                         div.innerHTML = `
                             <img src="${badge.imagen_url}" alt="icon" onerror="this.src='../Resources/Imagenes/QuinielazoLogo.png'">
-                            <div class="insignia-info">
-                                <h4>${badge.nombre}</h4>
-                                <p>${badge.descripcion}</p>
-                            </div>
-                            <button class="remove-insignia-btn" onclick="deleteBadge(${badge.id_insignia})">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
+                            <div class="insignia-info"><h4>${badge.nombre}</h4><p>${badge.descripcion}</p></div>
+                            <button class="remove-insignia-btn" onclick="deleteBadge(${badge.id_insignia})"><i class="fas fa-trash-alt"></i></button>
                         `;
                         insigniasListContainer.appendChild(div);
                     });
-                } catch (err) { console.error(err); }
+                } catch (err) {}
             }
-
             addInsigniaForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const nombre = document.getElementById('insignia-name').value;
                 const descripcion = document.getElementById('insignia-desc').value;
                 const imagen_url = document.getElementById('insignia-img').value;
-
                 try {
                     const res = await fetch('/admin/badges', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ nombre, descripcion, imagen_url })
                     });
-                    if(res.ok) {
-                        alert("Insignia agregada");
-                        addInsigniaForm.reset();
-                        renderBadges();
-                    }
-                } catch (err) { console.error(err); }
+                    if(res.ok) { alert("Insignia agregada"); addInsigniaForm.reset(); renderBadges(); }
+                } catch (err) {}
             });
-
             window.deleteBadge = async (id) => {
                 if(!confirm("¿Borrar insignia?")) return;
-                await fetch(`/admin/badges/${id}`, { method: 'DELETE' });
-                renderBadges();
+                await fetch(`/admin/badges/${id}`, { method: 'DELETE' }); renderBadges();
             };
 
-            // Funciones globales para botones dinámicos (Eliminar / Completar)
-            window.deleteMatch = async (id) => {
-                if(!confirm("¿Eliminar este partido?")) return;
+            // =========================================================
+            // 5. GESTIÓN DE RESULTADOS (NUEVO)
+            // =========================================================
+            async function renderGradingMatches() {
                 try {
-                    await fetch(`/admin/matches/${id}`, { method: 'DELETE' });
-                    renderMatches();
+                    const res = await fetch('/admin/matches'); 
+                    const matches = await res.json();
+                    const pendingMatches = matches.filter(m => m.estatus === 'pendiente');
+
+                    gradingContainer.innerHTML = '';
+                    if(pendingMatches.length === 0) {
+                        gradingContainer.innerHTML = '<p style="text-align:center; color:#999;">No hay partidos pendientes de resultado.</p>';
+                        return;
+                    }
+
+                    pendingMatches.forEach(match => {
+                        const div = document.createElement('div');
+                        div.style.cssText = "background:#222; padding:15px; border-radius:8px; display:flex; align-items:center; justify-content:space-between; border:1px solid #444;";
+                        div.innerHTML = `
+                            <div style="flex:1">
+                                <span style="color:#ffd700; font-size:0.9em;">${match.fase}</span><br>
+                                <strong style="font-size:1.1em;">${match.equipo1}</strong> vs <strong style="font-size:1.1em;">${match.equipo2}</strong>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <input type="number" id="g1-${match.id_partido}" placeholder="0" style="width:50px; text-align:center; padding:5px; border-radius:5px; border:none;">
+                                <span style="font-weight:bold;">-</span>
+                                <input type="number" id="g2-${match.id_partido}" placeholder="0" style="width:50px; text-align:center; padding:5px; border-radius:5px; border:none;">
+                                <button class="action-btn" onclick="saveResult(${match.id_partido})" style="background:#4CAF50; margin-left:10px;">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                            </div>
+                        `;
+                        gradingContainer.appendChild(div);
+                    });
+                } catch (err) { console.error(err); }
+            }
+
+            window.saveResult = async (id) => {
+                const g1 = document.getElementById(`g1-${id}`).value;
+                const g2 = document.getElementById(`g2-${id}`).value;
+
+                if(g1 === '' || g2 === '') return alert("Ingresa ambos marcadores.");
+                if(!confirm(`¿Confirmar resultado: Local ${g1} - ${g2} Visitante?\nEsto calculará los puntos de los usuarios.`)) return;
+
+                try {
+                    const res = await fetch(`/admin/matches/${id}/result`, {
+                        method: 'PUT', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ goles1: g1, goles2: g2 })
+                    });
+                    if(res.ok) {
+                        alert("Resultado guardado y puntos repartidos.");
+                        renderGradingMatches();
+                        renderLeaderboard();
+                        renderMatches(); // Actualizar lista en la pestaña de partidos
+                    } else { alert("Error al guardar resultado."); }
                 } catch(err) { console.error(err); }
             };
 
-            window.completeMatch = async (id) => {
-                if(!confirm("¿Marcar partido como finalizado?")) return;
+            async function renderLeaderboard() {
                 try {
-                    await fetch(`/admin/matches/${id}/complete`, { method: 'PUT' });
-                    renderMatches();
-                } catch(err) { console.error(err); }
-            };
+                    const res = await fetch('/admin/leaderboard');
+                    const users = await res.json();
+                    leaderboardBody.innerHTML = '';
+                    users.forEach((user, index) => {
+                        const tr = document.createElement('tr');
+                        let icon = '';
+                        if(index === 0) icon = '🥇 ';
+                        if(index === 1) icon = '🥈 ';
+                        if(index === 2) icon = '🥉 ';
+                        tr.innerHTML = `<td>${icon}${index + 1}</td><td>${user.usuario}</td><td style="font-weight:bold; color:#ffd700;">${user.puntos} pts</td>`;
+                        leaderboardBody.appendChild(tr);
+                    });
+                } catch (err) { console.error(err); }
+            }
 
             // --- INICIALIZACIÓN ---
             renderMatches();
+            renderJornadasList();
             renderTasks();
             renderBadges();
+            renderGradingMatches();
+            renderLeaderboard();
         });
     </script>
 </body>
