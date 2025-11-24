@@ -504,7 +504,8 @@ app.post('/logout', (req, res) => {
 // --- PERFIL (¡CORREGIDO! AHORA TRAE PUNTOS Y DIAMANTES) ---
 app.get('/profile/:id', (req, res) => {
     const userId = req.params.id;
-    // AQUI ESTA EL CAMBIO IMPORTANTE: Agregamos 'puntos' y 'diamantes'
+    
+    // AQUI ESTA EL CAMBIO IMPORTANTE: Agregamos 'puntos' y 'diamantes' a la consulta
     const sql = "SELECT nombres, apellidos, usuario, correo, fechaNacimiento, foto, puntos, diamantes FROM Usuario WHERE id_usuario = ?";
 
     connection.query(sql, [userId], (err, results) => {
@@ -517,6 +518,16 @@ app.get('/profile/:id', (req, res) => {
             fotoBase64 = `data:image/jpeg;base64,${Buffer.from(user.foto).toString('base64')}`;
         }
 
+        // ============================================================
+        // 🟢 CÓDIGO DE DIAGNÓSTICO (OPCIONAL, PERO ÚTIL PARA VERIFICAR)
+        // console.log("------------------------------------------------");
+        // console.log(`🔍 ID solicitado: ${userId}`);
+        // console.log(`💎 Diamantes en BD: ${user.diamantes}`);
+        // console.log(`🏆 Puntos en BD: ${user.puntos}`);
+        // console.log("------------------------------------------------");
+        // ============================================================
+
+        // AHORA ENVIAMOS PUNTOS Y DIAMANTES EN LA RESPUESTA JSON
         res.json({
             nombres: user.nombres,
             apellidos: user.apellidos,
@@ -524,8 +535,8 @@ app.get('/profile/:id', (req, res) => {
             correo: user.correo,
             fechaNacimiento: user.fechaNacimiento,
             foto: fotoBase64,
-            puntos: user.puntos || 0,       // Enviamos puntos
-            diamantes: user.diamantes || 0  // Enviamos diamantes
+            puntos: user.puntos || 0,       // <-- ¡CORREGIDO!
+            diamantes: user.diamantes || 0  // <-- ¡CORREGIDO!
         });
     });
 });
