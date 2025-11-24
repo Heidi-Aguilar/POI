@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil | QuinielaZo</title>
+    <link rel="stylesheet" href="../CSS/Styles.css">
+</head>
+
+<body>
+    <header>
+        <div class="head">
+            <div class="logo">
+                <a href="index.html"><img src="../Resources/Imagenes/QuinielazoLogo.png" alt="logo"></a>
+            </div>
+            <div class="navbar">
+                <a href="QuinielaZo.html">Torneo</a>
+                <a href="chatsito.html">Chat</a>
+                <a href="recompensas.html">Recompensas</a>
+                <a href="Novedades.html">Novedades</a>
+                <a href="perfil.html">Perfil</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="perfil-main">
+            <div class="perfil-card perfil-card-left">
+                <h2 class="perfil-titulo">Mi cuenta</h2>
+                <div class="perfil-foto">
+                    <img id="perfil-img" src="../Resources/Imagenes/IconImage.jpg" alt="Foto de perfil">
+                </div>
+                <div class="perfil-campo"><label>Nombre:</label>
+                    <div id="perfil-nombre">Cargando...</div>
+                </div>
+                <div class="perfil-campo"><label>Apellido:</label>
+                    <div id="perfil-apellido">Cargando...</div>
+                </div>
+                <div class="perfil-campo"><label>Usuario:</label>
+                    <div id="perfil-usuario">Cargando...</div>
+                </div>
+            </div>
+
+            <div class="perfil-card perfil-card-right">
+                <h2 class="perfil-titulo">Información General</h2>
+                <div class="perfil-campo"><label>Correo electrónico:</label>
+                    <div id="perfil-correo">Cargando...</div>
+                </div>
+                <div class="perfil-campo perfil-campo-inline">
+                    <div><label>Edad:</label>
+                        <div id="perfil-edad">...</div>
+                    </div>
+                    <div><label>Fecha de nacimiento:</label>
+                        <div id="perfil-fecha-nacimiento">Cargando...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <a href="Inicio.html">
+            <button id="logout-button" class="boton-cerrar-sesion">Cerrar Sesión</button>
+        </a>
+    </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        alert("No has iniciado sesión.");
+        window.location.href = 'inicio.html';
+        return;
+    }
+
+    try {
+        const res = await fetch(`http://192.168.0.2:3000/profile/${userId}`);
+        if (!res.ok) throw new Error('Error al cargar perfil');
+
+        const data = await res.json();
+
+        document.getElementById('perfil-nombre').textContent = data.nombres;
+        document.getElementById('perfil-apellido').textContent = data.apellidos;
+        document.getElementById('perfil-usuario').textContent = data.usuario;
+        document.getElementById('perfil-correo').textContent = data.correo;
+
+        document.getElementById('perfil-img').src = data.foto || '../Resources/Imagenes/IconImage.jpg';
+
+        const fecha = new Date(data.fechaNacimiento);
+        const hoy = new Date();
+        let edad = hoy.getFullYear() - fecha.getFullYear();
+        if (hoy.getMonth() < fecha.getMonth() || (hoy.getMonth() === fecha.getMonth() && hoy.getDate() < fecha.getDate())) edad--;
+        document.getElementById('perfil-edad').textContent = edad;
+        document.getElementById('perfil-fecha-nacimiento').textContent = fecha.toLocaleDateString('es-ES');
+
+    } catch (err) {
+        console.error(err);
+        alert('No se pudieron cargar los datos del perfil.');
+    }
+});
+
+// --- LOGOUT ---
+document.getElementById('logout-button').addEventListener('click', async () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) return window.location.href = 'inicio.html';
+
+    try {
+        const res = await fetch('http://192.168.0.2:3000/logout', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ id_usuario: userId })
+        });
+        if (!res.ok) throw new Error('Error al cerrar sesión');
+
+        localStorage.removeItem('userId'); // limpiar sesión local
+        alert('Sesión cerrada correctamente');
+        window.location.href = 'inicio.html';
+    } catch (err) {
+        console.error(err);
+        alert('No se pudo cerrar la sesión');
+    }
+});
+</script>
+
+
+</body>
+
+</html>
