@@ -2,7 +2,7 @@
 // Configuración de la base de datos
 $servidor = "localhost"; // Generalmente es 'localhost'
 $usuario_db = "root";    // Usuario de tu base de datos (por defecto suele ser 'root')
-$contrasena_db = "12345";     // Contraseña de tu base de datos (déjala vacía si no tiene)
+$contrasena_db = " ";     // Contraseña de tu base de datos (déjala vacía si no tiene)
 $nombre_db = "bd_poi";   // El nombre de tu base de datos
 
 // Crear la conexión
