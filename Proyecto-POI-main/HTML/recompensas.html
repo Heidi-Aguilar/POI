@@ -4,7 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recompensas | QuinielaZo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../CSS/Styles.css">
+    <style>
+        /* Estilos extra para diferenciar completadas */
+        .tarea-item.done {
+            border-left: 4px solid #4CAF50;
+            opacity: 0.8;
+        }
+        .insignia-box {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+        .insignia-locked {
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+        .insignia-obtained {
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        .insignia-tooltip {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            display: none;
+            z-index: 10;
+        }
+        .insignia-box:hover .insignia-tooltip { display: block; }
+    </style>
 </head>
 <body>
 <header>
@@ -26,28 +62,23 @@
 
     <main>
         <section class="recompensas-section">
-            <h2 class="recompensas-title">Recompensas</h2>
+            <h2 class="recompensas-title">Mis Recompensas</h2>
             <div class="recompensas-card">
+                
                 <div class="recompensas-tabs">
                     <button class="tab-btn active" id="tareasTab" onclick="showTab('tareas')">Tareas</button>
                     <button class="tab-btn" id="insigniasTab" onclick="showTab('insignias')">Insignias</button>
                 </div>
+
                 <div class="tab-content" id="tareasContent">
                     <div class="tareas-header">
-                        <h3>Tareas - Grupo A</h3>
-                        <button class="crear-tarea-btn" onclick="mostrarFormTarea()">+ Crear tarea</button>
+                        <h3>Lista de Tareas</h3>
                     </div>
-                    <form class="crear-tarea-form" id="crearTareaForm" onsubmit="return agregarTarea(event)">
-                        <input type="text" id="nuevaTareaTitulo" placeholder="Título de la tarea" required maxlength="40">
-                        <textarea id="nuevaTareaDesc" placeholder="Descripción de la tarea" required maxlength="120"></textarea>
-                        <div class="form-actions">
-                            <button type="submit">Agregar</button>
-                            <button type="button" class="cancelar" onclick="ocultarFormTarea()">Cancelar</button>
-                        </div>
-                    </form>
+                    
                     <div class="tarea-list" id="tareaList">
-                        <!-- Las tareas se generan por JS -->
+                        <p style="text-align:center; color:#999;">Cargando tareas...</p>
                     </div>
+
                     <div class="progreso-box">
                         <div class="progreso-bar">
                             <div class="progreso-bar-inner" id="progresoBar"></div>
@@ -55,20 +86,16 @@
                         <span id="progresoTexto">0/0 tareas completadas</span>
                     </div>
                 </div>
+
                 <div class="tab-content" id="insigniasContent" style="display:none;">
-                    <div class="insignias-grid">
-                        <div class="insignia-box"><span class="insignia-cruz">✚</span></div>
-                        <div class="insignia-box"><span class="insignia-cruz">✚</span></div>
-                        <div class="insignia-box"><span class="insignia-cruz">✚</span></div>
-                        <div class="insignia-box"><span class="insignia-cruz">✚</span></div>
-                        <div class="insignia-box"><span class="insignia-cruz">✚</span></div>
-                        <div class="insignia-box"><span class="insignia-cruz">✚</span></div>
+                    <div class="insignias-grid" id="insigniasGrid">
+                        <p style="text-align:center; color:#999;">Cargando insignias...</p>
                     </div>
                     <div class="insignias-leyenda">
-                        Cada insignia tiene un valor de cierta cantidad de puntos.<br>
-                        ¡Gana insignias completando las tareas diarias y utilízalas para probar tu suerte en la siguiente quiniela!
+                        ¡Participa en las quinielas y completa tareas para desbloquear nuevas insignias!
                     </div>
                 </div>
+
             </div>
         </section>
     </main>
@@ -85,94 +112,150 @@
     </footer>
 
     <script>
-        // Tareas iniciales
-        let tareas = [
-            {
-                titulo: "Completa tu perfil",
-                desc: "Agrega tu información personal y una foto de perfil.",
-                completada: false
-            },
-            {
-                titulo: "Participa en tu primer torneo",
-                desc: "Ingresa a un torneo y realiza tus pronósticos.",
-                completada: false
-            },
-            {
-                titulo: "Invita a un amigo",
-                desc: "Comparte tu código de invitación y suma puntos extra.",
-                completada: false
-            },
-            {
-                titulo: "Gana tu primer partido",
-                desc: "Acumula puntos acertando un resultado.",
-                completada: false
+        document.addEventListener('DOMContentLoaded', () => {
+            const userId = localStorage.getItem('userId');
+            if (!userId) {
+                alert("Inicia sesión para ver tus recompensas.");
+                window.location.href = 'inicio.html';
+                return;
             }
-        ];
 
-        function showTab(tab) {
-            document.getElementById('tareasContent').style.display = (tab === 'tareas') ? 'block' : 'none';
-            document.getElementById('insigniasContent').style.display = (tab === 'insignias') ? 'block' : 'none';
-            document.getElementById('tareasTab').classList.toggle('active', tab === 'tareas');
-            document.getElementById('insigniasTab').classList.toggle('active', tab === 'insignias');
-        }
-
-        function renderTareas() {
+            // Referencias DOM
             const tareaList = document.getElementById('tareaList');
-            tareaList.innerHTML = '';
-            tareas.forEach((tarea, idx) => {
-                const tareaDiv = document.createElement('div');
-                tareaDiv.className = 'tarea-item';
-                tareaDiv.innerHTML = `
-                    <input type="checkbox" class="tarea-checkbox" ${tarea.completada ? 'checked' : ''} onchange="toggleTarea(${idx}, this)">
-                    <div class="tarea-desc">
-                        <strong>${tarea.titulo}</strong>
-                        <p>${tarea.desc}</p>
-                    </div>
-                    <span class="tarea-status ${tarea.completada ? 'completado' : ''}">${tarea.completada ? 'Completado' : 'No completado'}</span>
-                `;
-                tareaList.appendChild(tareaDiv);
-            });
-            updateProgreso();
-        }
+            const insigniasGrid = document.getElementById('insigniasGrid');
+            const progresoBar = document.getElementById('progresoBar');
+            const progresoTexto = document.getElementById('progresoTexto');
 
-        function toggleTarea(idx, checkbox) {
-            tareas[idx].completada = checkbox.checked;
-            renderTareas();
-        }
+            // Funciones de Tabs
+            window.showTab = (tab) => {
+                document.getElementById('tareasContent').style.display = (tab === 'tareas') ? 'block' : 'none';
+                document.getElementById('insigniasContent').style.display = (tab === 'insignias') ? 'block' : 'none';
+                document.getElementById('tareasTab').classList.toggle('active', tab === 'tareas');
+                document.getElementById('insigniasTab').classList.toggle('active', tab === 'insignias');
+            };
 
-        function updateProgreso() {
-            const total = tareas.length;
-            const completadas = tareas.filter(t => t.completada).length;
-            const porcentaje = total === 0 ? 0 : (completadas / total) * 100;
-            document.getElementById('progresoBar').style.width = porcentaje + '%';
-            document.getElementById('progresoTexto').textContent = `${completadas}/${total} tareas completadas`;
-        }
+            // 1. CARGAR TAREAS
+            async function loadTasks() {
+                try {
+                    const res = await fetch(`/api/tasks/user/${userId}`);
+                    const tasks = await res.json();
 
-        function mostrarFormTarea() {
-            document.getElementById('crearTareaForm').style.display = 'flex';
-            document.getElementById('nuevaTareaTitulo').focus();
-        }
+                    tareaList.innerHTML = '';
+                    let completedCount = 0;
 
-        function ocultarFormTarea() {
-            document.getElementById('crearTareaForm').reset();
-            document.getElementById('crearTareaForm').style.display = 'none';
-        }
+                    if(tasks.length === 0) {
+                        tareaList.innerHTML = '<p style="text-align:center;">No hay tareas disponibles.</p>';
+                        updateProgress(0, 0);
+                        return;
+                    }
 
-        function agregarTarea(e) {
-            e.preventDefault();
-            const titulo = document.getElementById('nuevaTareaTitulo').value.trim();
-            const desc = document.getElementById('nuevaTareaDesc').value.trim();
-            if (titulo && desc) {
-                tareas.push({ titulo, desc, completada: false });
-                renderTareas();
-                ocultarFormTarea();
+                    tasks.forEach(t => {
+                        const isDone = t.completada_por_usuario === 1;
+                        if(isDone) completedCount++;
+
+                        const div = document.createElement('div');
+                        div.className = `tarea-item ${isDone ? 'done' : ''}`;
+                        
+                        // El checkbox solo se puede marcar si no está hecho. Si ya está hecho, se deshabilita.
+                        const checkboxHtml = `<input type="checkbox" class="tarea-checkbox" 
+                                              ${isDone ? 'checked disabled' : ''} 
+                                              onchange="completeTask(${t.id_tarea}, this)">`;
+
+                        div.innerHTML = `
+                            ${checkboxHtml}
+                            <div class="tarea-desc">
+                                <strong>${t.titulo}</strong>
+                                <p>${t.descripcion}</p>
+                            </div>
+                            <span class="tarea-status ${isDone ? 'completado' : ''}">
+                                ${isDone ? 'Completado' : 'Pendiente'}
+                            </span>
+                        `;
+                        tareaList.appendChild(div);
+                    });
+
+                    updateProgress(completedCount, tasks.length);
+
+                } catch(err) {
+                    console.error(err);
+                    tareaList.innerHTML = '<p style="color:red;">Error al cargar tareas.</p>';
+                }
             }
-            return false;
-        }
 
-        // Inicializa
-        document.addEventListener('DOMContentLoaded', function () {
-            renderTareas();
+            // 2. COMPLETAR TAREA
+            window.completeTask = async (idTarea, checkbox) => {
+                if(!confirm("¿Marcar esta tarea como completada?")) {
+                    checkbox.checked = false;
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/api/tasks/complete', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ id_usuario: userId, id_tarea: idTarea })
+                    });
+
+                    if(res.ok) {
+                        // Recargar la lista para actualizar estilos y barra
+                        loadTasks(); 
+                    } else {
+                        alert("Error al completar tarea.");
+                        checkbox.checked = false;
+                    }
+                } catch(err) {
+                    console.error(err);
+                    checkbox.checked = false;
+                }
+            };
+
+            function updateProgress(done, total) {
+                const pct = total === 0 ? 0 : (done / total) * 100;
+                progresoBar.style.width = `${pct}%`;
+                progresoTexto.textContent = `${done}/${total} tareas completadas`;
+            }
+
+            // 3. CARGAR INSIGNIAS
+            async function loadBadges() {
+                try {
+                    const res = await fetch(`/api/badges/user/${userId}`);
+                    const badges = await res.json();
+
+                    insigniasGrid.innerHTML = '';
+
+                    if(badges.length === 0) {
+                        insigniasGrid.innerHTML = '<p>No hay insignias configuradas.</p>';
+                        return;
+                    }
+
+                    badges.forEach(b => {
+                        const hasIt = b.obtenida === 1;
+                        const div = document.createElement('div');
+                        // Clase visual si la tiene o no
+                        const lockClass = hasIt ? 'insignia-obtained' : 'insignia-locked';
+                        
+                        // Imagen de fondo (la URL de la insignia o una por defecto)
+                        // Usamos un div con background-image para centrarlo bonito
+                        div.className = `insignia-box ${lockClass}`;
+                        div.style.backgroundImage = `url('${b.imagen_url}')`;
+                        
+                        // Si la imagen falla (está vacía), mostramos un texto
+                        if(!b.imagen_url) div.innerHTML = '<span class="insignia-cruz">🏆</span>';
+
+                        // Tooltip con el nombre
+                        div.innerHTML += `<div class="insignia-tooltip">${b.nombre}</div>`;
+
+                        insigniasGrid.appendChild(div);
+                    });
+
+                } catch(err) {
+                    console.error(err);
+                }
+            }
+
+            // Inicialización
+            loadTasks();
+            loadBadges();
         });
     </script>
 </body>

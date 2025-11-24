@@ -834,7 +834,61 @@ app.put('/admin/quiniela/:nombreJornada', (req, res) => {
     });
 });
 
-// --- 5. USUARIO: Obtener todas las jornadas disponibles ---
+// --- 5. ADMIN: Registrar resultado de un partido y calcular puntos ---
+app.put('/admin/matches/:id/result', (req, res) => {
+    const { id } = req.params;
+    const { goles1, goles2 } = req.body;
+
+    // A. Actualizar el partido con el resultado final
+    const sqlPartido = "UPDATE Partido SET goles_equipo1 = ?, goles_equipo2 = ?, estatus = 'finalizado' WHERE id_partido = ?";
+    
+    connection.query(sqlPartido, [goles1, goles2, id], (err, result) => {
+        if (err) return res.status(500).json({ error: "Error al actualizar partido: " + err.message });
+
+        // B. Calcular puntos para los pronósticos de este partido
+        const sqlPuntos = `
+            UPDATE Pronostico p
+            JOIN Partido m ON p.id_partido = m.id_partido
+            SET p.puntos_ganados = CASE
+                -- Acierto Exacto (3 Puntos)
+                WHEN p.prediccion_eq1 = m.goles_equipo1 AND p.prediccion_eq2 = m.goles_equipo2 THEN 3
+                -- Acierto Ganador o Empate (1 Punto)
+                WHEN (p.prediccion_eq1 > p.prediccion_eq2 AND m.goles_equipo1 > m.goles_equipo2) OR 
+                     (p.prediccion_eq1 < p.prediccion_eq2 AND m.goles_equipo1 < m.goles_equipo2) OR 
+                     (p.prediccion_eq1 = p.prediccion_eq2 AND m.goles_equipo1 = m.goles_equipo2)
+                THEN 1
+                ELSE 0
+            END
+            WHERE p.id_partido = ?;
+        `;
+
+        connection.query(sqlPuntos, [id], (err2, result2) => {
+            if (err2) return res.status(500).json({ error: "Error calculando puntos: " + err2.message });
+
+            // C. Actualizar el puntaje total en la tabla de Usuarios
+            const sqlTotal = `
+                UPDATE Usuario u
+                SET u.puntos = (SELECT COALESCE(SUM(p.puntos_ganados), 0) FROM Pronostico p WHERE p.id_usuario = u.id_usuario);
+            `;
+
+            connection.query(sqlTotal, (err3, result3) => {
+                if (err3) return res.status(500).json({ error: "Error actualizando totales: " + err3.message });
+                res.json({ message: "Resultado guardado y puntos calculados exitosamente." });
+            });
+        });
+    });
+});
+
+// --- 6. ADMIN/USUARIO: Obtener Tabla de Líderes (Ranking) ---
+app.get('/admin/leaderboard', (req, res) => {
+    const sql = "SELECT id_usuario, usuario, puntos FROM Usuario WHERE rol = 0 ORDER BY puntos DESC";
+    connection.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// --- 7. USUARIO: Obtener todas las jornadas disponibles ---
 app.get('/api/quiniela/jornadas', (req, res) => {
     const sql = "SELECT DISTINCT fase FROM Partido WHERE estatus = 'pendiente' ORDER BY fase";
     connection.query(sql, (err, results) => {
@@ -843,7 +897,7 @@ app.get('/api/quiniela/jornadas', (req, res) => {
     });
 });
 
-// --- 6. USUARIO: Obtener partidos de una jornada específica ---
+// --- 8. USUARIO: Obtener partidos de una jornada específica ---
 app.get('/api/quiniela/partidos/:jornada', (req, res) => {
     const { jornada } = req.params;
     const sql = "SELECT * FROM Partido WHERE fase = ? AND estatus = 'pendiente'";
@@ -853,7 +907,7 @@ app.get('/api/quiniela/partidos/:jornada', (req, res) => {
     });
 });
 
-// --- 7. USUARIO: Guardar Pronósticos ---
+// --- 9. USUARIO: Guardar Pronósticos ---
 app.post('/api/pronosticos', (req, res) => {
     const { id_usuario, predicciones } = req.body; 
     if (!predicciones || predicciones.length === 0) return res.status(400).json({message: "Sin datos"});
@@ -875,66 +929,105 @@ app.post('/api/pronosticos', (req, res) => {
         .then(() => res.json({ message: "Pronósticos guardados correctamente" }))
         .catch(err => res.status(500).json({ error: err.message }));
 });
-// ================================================================
 
-// ================================================================
-// ⬇️⬇️⬇️ CÁLCULO DE RESULTADOS Y PUNTOS ⬇️⬇️⬇️
-// ================================================================
-
-// --- ADMIN: Registrar resultado de un partido y calcular puntos ---
-app.put('/admin/matches/:id/result', (req, res) => {
-    const { id } = req.params;
-    const { goles1, goles2 } = req.body;
-
-    // 1. Actualizar el partido con el resultado final
-    const sqlPartido = "UPDATE Partido SET goles_equipo1 = ?, goles_equipo2 = ?, estatus = 'finalizado' WHERE id_partido = ?";
-    
-    connection.query(sqlPartido, [goles1, goles2, id], (err, result) => {
-        if (err) return res.status(500).json({ error: "Error al actualizar partido: " + err.message });
-
-        // 2. Calcular puntos para los pronósticos de este partido
-        // Lógica: 3 puntos si acierta marcador exacto, 1 punto si acierta al ganador (o empate), 0 si falla.
-        const sqlPuntos = `
-            UPDATE Pronostico p
-            JOIN Partido m ON p.id_partido = m.id_partido
-            SET p.puntos_ganados = CASE
-                -- Acierto Exacto (3 Puntos)
-                WHEN p.prediccion_eq1 = m.goles_equipo1 AND p.prediccion_eq2 = m.goles_equipo2 THEN 3
-                -- Acierto Ganador o Empate (1 Punto)
-                WHEN (p.prediccion_eq1 > p.prediccion_eq2 AND m.goles_equipo1 > m.goles_equipo2) OR -- Ganó Local
-                     (p.prediccion_eq1 < p.prediccion_eq2 AND m.goles_equipo1 < m.goles_equipo2) OR -- Ganó Visitante
-                     (p.prediccion_eq1 = p.prediccion_eq2 AND m.goles_equipo1 = m.goles_equipo2)    -- Empate
-                THEN 1
-                -- Fallo
-                ELSE 0
-            END
-            WHERE p.id_partido = ?;
-        `;
-
-        connection.query(sqlPuntos, [id], (err2, result2) => {
-            if (err2) return res.status(500).json({ error: "Error calculando puntos: " + err2.message });
-
-            // 3. Actualizar el puntaje total en la tabla de Usuarios
-            const sqlTotal = `
-                UPDATE Usuario u
-                SET u.puntos = (SELECT COALESCE(SUM(p.puntos_ganados), 0) FROM Pronostico p WHERE p.id_usuario = u.id_usuario);
-            `;
-
-            connection.query(sqlTotal, (err3, result3) => {
-                if (err3) return res.status(500).json({ error: "Error actualizando totales: " + err3.message });
-                
-                res.json({ message: "Resultado guardado y puntos calculados exitosamente." });
-            });
-        });
+// --- 10. USUARIO: Obtener Historial de Predicciones (Partidos Finalizados) ---
+app.get('/api/pronosticos/historial/:id_usuario', (req, res) => {
+    const { id_usuario } = req.params;
+    const sql = `
+        SELECT 
+            p.equipo1, p.equipo2, p.fase, 
+            p.goles_equipo1 AS real1, p.goles_equipo2 AS real2,
+            pr.prediccion_eq1 AS pred1, pr.prediccion_eq2 AS pred2,
+            pr.puntos_ganados
+        FROM Pronostico pr
+        JOIN Partido p ON pr.id_partido = p.id_partido
+        WHERE pr.id_usuario = ? AND p.estatus = 'finalizado'
+        ORDER BY p.id_partido DESC
+    `;
+    connection.query(sql, [id_usuario], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
     });
 });
 
-// --- ADMIN: Obtener Tabla de Líderes (Ranking) ---
-app.get('/admin/leaderboard', (req, res) => {
-    const sql = "SELECT id_usuario, usuario, puntos FROM Usuario WHERE rol = 0 ORDER BY puntos DESC";
+// ================================================================
+// ⬆️⬆️⬆️ FIN ZONA COMPLETA ⬆️⬆️⬆️
+// ================================================================
+
+// ================================================================
+// ⬇️⬇️⬇️ RUTAS DE RECOMPENSAS Y TAREAS (USUARIO) ⬇️⬇️⬇️
+// ================================================================
+
+// --- 1. Obtener Tareas (Globales) y verificar si el usuario ya las hizo ---
+app.get('/api/tasks/user/:id_usuario', (req, res) => {
+    const { id_usuario } = req.params;
+    // Traemos todas las tareas globales (id_grupo NULL)
+    // Y usamos LEFT JOIN para ver si este usuario ya la tiene en la tabla UsuarioTarea
+    const sql = `
+        SELECT t.*, 
+               CASE WHEN ut.id_usuario IS NOT NULL THEN 1 ELSE 0 END as completada_por_usuario
+        FROM Tarea t
+        LEFT JOIN UsuarioTarea ut ON t.id_tarea = ut.id_tarea AND ut.id_usuario = ?
+        WHERE t.id_grupo IS NULL
+        ORDER BY t.id_tarea DESC
+    `;
+    connection.query(sql, [id_usuario], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// --- 2. Marcar Tarea como Completada ---
+app.post('/api/tasks/complete', (req, res) => {
+    const { id_usuario, id_tarea } = req.body;
+    const sql = "INSERT INTO UsuarioTarea (id_usuario, id_tarea) VALUES (?, ?)";
+    
+    connection.query(sql, [id_usuario, id_tarea], (err, result) => {
+        if (err) {
+            // Si ya estaba completada (error de duplicado), no pasa nada
+            if (err.code === 'ER_DUP_ENTRY') return res.json({ message: "Tarea ya estaba completada." });
+            return res.status(500).json({ error: err.message });
+        }
+        
+        // Opcional: Aquí podrías sumar puntos extra al usuario por completar tarea
+        // const sqlPuntos = "UPDATE Usuario SET puntos = puntos + 10 WHERE id_usuario = ?";
+        // connection.query(sqlPuntos, [id_usuario]);
+
+        res.json({ message: "Tarea completada exitosamente" });
+    });
+});
+
+// --- 3. GESTIÓN DE INSIGNIAS (RECOMPENSAS) ---
+
+// Obtener insignias
+app.get('/admin/badges', (req, res) => {
+    const sql = "SELECT * FROM Insignia ORDER BY precio_puntos ASC";
     connection.query(sql, (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
+    });
+});
+
+// Agregar insignia (ESTA ES LA PARTE IMPORTANTE QUE TE FALTA ACTUALIZAR)
+app.post('/admin/badges', (req, res) => {
+    const { nombre, descripcion, imagen_url, precio_puntos } = req.body;
+    
+    // Aquí está la clave: agregamos precio_puntos al INSERT
+    const sql = "INSERT INTO Insignia (nombre, descripcion, imagen_url, precio_puntos) VALUES (?, ?, ?, ?)";
+    
+    connection.query(sql, [nombre, descripcion, imagen_url, precio_puntos], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Insignia creada", id: result.insertId });
+    });
+});
+
+// Eliminar insignia
+app.delete('/admin/badges/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = "DELETE FROM Insignia WHERE id_insignia = ?";
+    connection.query(sql, [id], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Insignia eliminada" });
     });
 });
 

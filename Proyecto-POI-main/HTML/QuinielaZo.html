@@ -9,6 +9,56 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="../CSS/Styles.css">
+    <style>
+        /* Estilos extra para el historial */
+        .historial-item {
+            background-color: #222025;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid #444;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .historial-match-info {
+            flex: 1;
+            min-width: 200px;
+        }
+        .historial-scores {
+            display: flex;
+            gap: 20px;
+            text-align: center;
+        }
+        .score-box {
+            background: #333;
+            padding: 8px 15px;
+            border-radius: 8px;
+        }
+        .score-label {
+            font-size: 0.75em;
+            color: #aaa;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .score-val {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #fff;
+        }
+        .points-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .points-win { background-color: #4CAF50; color: white; }
+        .points-draw { background-color: #FF9800; color: white; } /* Opcional */
+        .points-loss { background-color: #555; color: #ccc; }
+    </style>
 </head>
 
 <body>
@@ -23,7 +73,7 @@
 
             <div class="navbar">
                 <a href="QuinielaZo.html">Torneo</a>
-                <a href="chat.html">Chat</a>
+                <a href="chatsito.html">Chat</a>
                 <a href="recompensas.html">Recompensas</a>
                 <a href="Novedades.html">Novedades</a>
                 <a href="perfil.html">Perfil</a>
@@ -50,8 +100,7 @@
             <div class="quiniela-form-view" id="quiniela-form-view">
                 <h3 class="quiniela-form-titulo">Pronóstico: <span id="jornada-title"></span></h3>
                 
-                <div id="partidos-container" style="width: 100%; max-width: 600px;">
-                    </div>
+                <div id="partidos-container" style="width: 100%; max-width: 600px;"></div>
 
                 <button class="submit-button">Enviar Quiniela</button>
                 <button class="back-button"><i class="fas fa-arrow-left"></i> Regresar</button>
@@ -59,9 +108,13 @@
         </section>
 
         <section class="historial-section" id="historial-content">
-            <div class="resultados-vacio-card">
-                <h4 class="resultados-vacio-titulo">Historial de Predicciones</h4>
-                <p class="resultados-vacio-texto">Próximamente podrás ver aquí tus quinielas pasadas.</p>
+            <div style="width: 100%; max-width: 800px;">
+                <h3 style="color:#ffd700; text-align:center; margin-bottom:20px;">Mis Quinielas Finalizadas</h3>
+                <div id="historial-list">
+                    <div class="resultados-vacio-card">
+                        <p class="resultados-vacio-texto">Cargando historial...</p>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -121,6 +174,7 @@
             const submitButton = document.querySelector('.submit-button');
             const notification = document.getElementById('notification-message');
             const leaderboardBody = document.getElementById('leaderboard-body-user');
+            const historialList = document.getElementById('historial-list');
 
             // --- NAVEGACIÓN DE TABS ---
             tabs.forEach(tab => {
@@ -133,13 +187,12 @@
                     const targetId = e.target.dataset.tab;
                     document.getElementById(targetId + '-content').classList.add('active-content');
 
-                    // Si va a resultados, cargamos el ranking
                     if(targetId === 'resultados') loadLeaderboard();
-                    // Si vuelve a quiniela, aseguramos ver el menú
+                    if(targetId === 'historial') loadHistory(); // <-- Cargar Historial
                     if(targetId === 'quiniela') {
                         formView.classList.remove('active-view');
                         menuView.classList.add('active-view');
-                        loadJornadas(); // Recargar por si hay nuevas
+                        loadJornadas();
                     }
                 });
             });
@@ -151,7 +204,6 @@
                     const jornadas = await res.json();
                     
                     jornadasContainer.innerHTML = '';
-
                     if (jornadas.length === 0) {
                         jornadasContainer.innerHTML = '<p style="text-align:center; margin-top:20px;">No hay quinielas activas en este momento.</p>';
                         return;
@@ -167,18 +219,12 @@
                         card.addEventListener('click', () => loadMatches(nombreJornada));
                         jornadasContainer.appendChild(card);
                     });
-
-                } catch (err) {
-                    console.error("Error:", err);
-                    jornadasContainer.innerHTML = '<p style="color:red; text-align:center;">Error al conectar con el servidor.</p>';
-                }
+                } catch (err) { console.error("Error:", err); }
             }
 
             // --- 2. CARGAR PARTIDOS DE UNA JORNADA ---
             async function loadMatches(nombreJornada) {
                 jornadaTitle.textContent = nombreJornada;
-                
-                // Cambiar vista
                 menuView.classList.remove('active-view');
                 formView.classList.add('active-view');
                 partidosContainer.innerHTML = '<p style="text-align:center;">Cargando partidos...</p>';
@@ -186,7 +232,6 @@
                 try {
                     const res = await fetch(`/api/quiniela/partidos/${encodeURIComponent(nombreJornada)}`);
                     const partidos = await res.json();
-
                     partidosContainer.innerHTML = '';
 
                     partidos.forEach(p => {
@@ -206,35 +251,24 @@
                         `;
                         partidosContainer.appendChild(card);
                     });
-
-                } catch (err) {
-                    console.error(err);
-                    alert("Error al cargar los partidos.");
-                }
+                } catch (err) { alert("Error al cargar los partidos."); }
             }
 
             // --- 3. ENVIAR PRONÓSTICOS ---
             submitButton.addEventListener('click', async () => {
                 const inputs = partidosContainer.querySelectorAll('.partido-card');
                 const predicciones = [];
-                let completos = true;
 
                 inputs.forEach(card => {
                     const id_partido = card.dataset.id;
                     const g1 = card.querySelector('.g1').value;
                     const g2 = card.querySelector('.g2').value;
-
-                    if(g1 === '' || g2 === '') {
-                        completos = false;
-                    } else {
+                    if(g1 !== '' && g2 !== '') {
                         predicciones.push({ id_partido, g1, g2 });
                     }
                 });
 
                 if (predicciones.length === 0) return alert("Por favor, llena al menos un pronóstico.");
-                
-                // Opcional: Validar si quieres obligar a llenar todos
-                // if (!completos) return alert("Por favor, completa todos los partidos de la quiniela.");
 
                 try {
                     const res = await fetch('/api/pronosticos', {
@@ -247,52 +281,94 @@
                         notification.classList.add('show');
                         setTimeout(() => {
                             notification.classList.remove('show');
-                            // Regresar al menú
                             formView.classList.remove('active-view');
                             menuView.classList.add('active-view');
                         }, 2500);
-                    } else {
-                        alert("Hubo un problema al guardar tu quiniela.");
-                    }
-                } catch(err) {
-                    console.error(err);
-                    alert("Error de conexión.");
-                }
+                    } else { alert("Hubo un problema al guardar tu quiniela."); }
+                } catch(err) { alert("Error de conexión."); }
             });
 
-            // --- 4. CARGAR RANKING (LÍDERES) ---
+            // --- 4. CARGAR RANKING ---
             async function loadLeaderboard() {
                 try {
-                    const res = await fetch('/admin/leaderboard'); // Usamos la misma ruta pública
+                    const res = await fetch('/admin/leaderboard');
                     const users = await res.json();
-                    
                     leaderboardBody.innerHTML = '';
                     if(users.length === 0) {
                         leaderboardBody.innerHTML = '<tr><td colspan="3">Aún no hay puntuaciones.</td></tr>';
                         return;
                     }
-
                     users.forEach((user, index) => {
                         const tr = document.createElement('tr');
                         let icon = `${index + 1}`;
                         if(index === 0) icon = '🥇 1';
                         if(index === 1) icon = '🥈 2';
                         if(index === 2) icon = '🥉 3';
-
-                        // Resaltar al usuario actual
                         if(user.id_usuario == userId) tr.style.backgroundColor = '#4a0000';
-
-                        tr.innerHTML = `
-                            <td>${icon}</td>
-                            <td>${user.usuario}</td>
-                            <td style="font-weight:bold; color:#ffd700;">${user.puntos} pts</td>
-                        `;
+                        tr.innerHTML = `<td>${icon}</td><td>${user.usuario}</td><td style="font-weight:bold; color:#ffd700;">${user.puntos} pts</td>`;
                         leaderboardBody.appendChild(tr);
                     });
                 } catch (err) { console.error(err); }
             }
 
-            // Botón Regresar
+            // --- 5. CARGAR HISTORIAL (NUEVO) ---
+            async function loadHistory() {
+                try {
+                    const res = await fetch(`/api/pronosticos/historial/${userId}`);
+                    const historial = await res.json();
+                    
+                    historialList.innerHTML = '';
+
+                    if (historial.length === 0) {
+                        historialList.innerHTML = `
+                            <div class="resultados-vacio-card">
+                                <h4 class="resultados-vacio-titulo">Sin actividad reciente</h4>
+                                <p class="resultados-vacio-texto">Aquí aparecerán tus predicciones cuando los partidos terminen.</p>
+                            </div>`;
+                        return;
+                    }
+
+                    historial.forEach(item => {
+                        // Determinar clase y texto del badge de puntos
+                        let badgeClass = 'points-loss';
+                        let badgeText = '+0 Puntos';
+                        if(item.puntos_ganados == 3) {
+                            badgeClass = 'points-win';
+                            badgeText = '+3 Puntos (Exacto)';
+                        } else if(item.puntos_ganados == 1) {
+                            badgeClass = 'points-win'; // O un color intermedio
+                            badgeText = '+1 Punto (Acierto)';
+                        }
+
+                        const div = document.createElement('div');
+                        div.className = 'historial-item';
+                        div.innerHTML = `
+                            <div class="historial-match-info">
+                                <h4 style="color:#ffd700; margin-bottom:5px;">${item.fase}</h4>
+                                <p style="margin:0; font-size:1.1em;">${item.equipo1} vs ${item.equipo2}</p>
+                            </div>
+                            
+                            <div class="historial-scores">
+                                <div class="score-box">
+                                    <span class="score-label">Tu Pronóstico</span>
+                                    <span class="score-val">${item.pred1} - ${item.pred2}</span>
+                                </div>
+                                <div class="score-box" style="border:1px solid #ffd700;">
+                                    <span class="score-label" style="color:#ffd700;">Resultado Final</span>
+                                    <span class="score-val">${item.real1} - ${item.real2}</span>
+                                </div>
+                            </div>
+
+                            <div class="points-badge ${badgeClass}">
+                                ${badgeText}
+                            </div>
+                        `;
+                        historialList.appendChild(div);
+                    });
+
+                } catch(err) { console.error(err); }
+            }
+
             backButton.addEventListener('click', () => {
                 formView.classList.remove('active-view');
                 menuView.classList.add('active-view');
