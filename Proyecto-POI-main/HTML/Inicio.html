@@ -185,7 +185,7 @@
             const password = document.getElementById('login-password').value;
 
             try {
-                const res = await fetch('http://172.20.10.2:3000/login', {
+                const res = await fetch('http://10.223.30.200:3000/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ correo, password })
@@ -201,9 +201,9 @@
                     // Si rol es 1 (Admin) -> Administrador.html
                     // Si no -> perfil.html
                     if (data.rol == 1) {
-                        window.location.href = `http://172.20.10.2:3000/HTML/Administrador.html`;
+                        window.location.href = `http://10.223.30.200:3000/HTML/Administrador.html`;
                     } else {
-                        window.location.href = `http://172.20.10.2:3000/HTML/perfil.html`;
+                        window.location.href = `http://10.223.30.200:3000/HTML/perfil.html`;
                     }
                 }
                 else {
@@ -228,7 +228,7 @@
             const password = document.getElementById('reg-password').value;
 
             try {
-                const res = await fetch('http://172.20.10.2:3000/register', {
+                const res = await fetch('http://10.223.30.200:3000/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nombre, apellido, fecha, email, usuario, password })
