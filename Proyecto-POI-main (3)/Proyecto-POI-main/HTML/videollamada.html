@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+       
+    <meta charset="UTF-8">
+       
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>QuinielaZo - Videollamada</title>
+       
+    <link rel="stylesheet" href="../CSS/Styles.css">
+        <style>
+        /* Estilos básicos para la videollamada */
+        #videoContainer {
+            display: flex;
+            justify-content: center;
+            background-color: #222;
+            height: 80vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #remoteVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: black;
+        }
+
+        #localVideo {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 250px;
+            height: 180px;
+            z-index: 10;
+            border: 4px solid white;
+            border-radius: 8px;
+            transform: scaleX(-1);
+            /* Reflejo horizontal para verse natural */
+        }
+
+        .controls {
+            text-align: center;
+            padding: 15px;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+        <header>
+                <div class="head">
+                        <div class="logo"><a href="index.html"><img src="../Resources/Imagenes/QuinielazoLogo.png"
+                        alt="logo"></a>
+                            </div>
+                        <div class="navbar">
+                                <span style="color: white;">🎥 Videollamada</span>
+                            </div>
+                    </div>
+            </header>
+
+        <section class="screen" id="videocall">
+                <div id="videoContainer">
+                                    <video id="remoteVideo" autoplay playsinline></video>
+                                    <video id="localVideo" autoplay muted playsinline></video>
+                    </div>
+
+                <div class="controls">
+                        <button id="endCallButton">Colgar Llamada 🛑</button>
+                    </div>
+            </section>
+
+        <footer>
+                <div class="copyright">
+                        <p>© 2026 QuinielaZo. Todos los derechos reservados.</p>
+                    </div>
+            </footer>
+
+       
+    <script src="/socket.io/socket.io.js"></script>
+       
+    <script type="module">
+        // videollamada.html - Dentro del <script type="module">
+
+        const IP_LOCAL = "192.168.0.2";
+        const SERVER_URL = window.location.hostname === "localhost"
+            ? "http://localhost:3000"
+            : `http://${IP_LOCAL}:3000`;
+
+        const socket = io(SERVER_URL);
+        const myId = localStorage.getItem('userId');
+
+        // Elementos de video
+        const localVideo = document.getElementById("localVideo");
+        const remoteVideo = document.getElementById("remoteVideo");
+        const endCallButton = document.getElementById("endCallButton");
+
+        let localStream;
+        let peerConnection;
+
+        // Obtener datos cruciales de la sesión
+        let remoteUserId = sessionStorage.getItem("remoteUserId");
+        let isCaller = sessionStorage.getItem("isCaller") === 'true';
+
+        // Servidores ICE
+        const iceServers = {
+            iceServers: [
+                { urls: "stun:stun.l.google.com:19302" }
+            ]
+        };
+
+        // ----------------- FUNCIONES CORE WEBRTC -----------------
+
+        async function startLocalStream() {
+            try {
+                console.log("🎥 Obteniendo stream local...");
+                // Solicitar video y audio
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                localVideo.srcObject = localStream;
+                return true;
+            } catch (error) {
+                console.error("❌ Error al acceder a la cámara/micrófono:", error);
+                alert("Necesitas permiso para usar la cámara y el micrófono. Colgando llamada.");
+                endCall();
+                return false;
+            }
+        }
+
+        function createPeerConnection() {
+            console.log("🛠 Creando RTCPeerConnection...");
+            peerConnection = new RTCPeerConnection(iceServers);
+
+            // 1. Agregar tracks locales
+            localStream.getTracks().forEach(track => {
+                peerConnection.addTrack(track, localStream);
+            });
+
+            // 2. Manejar la recepción de tracks remotos
+            peerConnection.ontrack = (event) => {
+                console.log("📺 Recibiendo video remoto");
+                // Asignar el primer stream a la etiqueta de video remoto
+                if (remoteVideo.srcObject !== event.streams[0]) {
+                    remoteVideo.srcObject = event.streams[0];
+                }
+            };
+
+            // 3. Manejar el envío de candidatos ICE para NAT Traversal
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    console.log("📡 Enviando ICE");
+                    // Usamos el socket: 'call:ice-candidate' (ya definido en index.js)
+                    socket.emit("call:ice-candidate", {
+                        to: remoteUserId,
+                        candidate: event.candidate
+                    });
+                }
+            };
+        }
+
+        // Llamador: Crea Offer y lo envía
+        async function startWebRTCCall() {
+            console.log("📞 Iniciando WebRTC como LLAMADOR (OFFER)...");
+
+            if (await startLocalStream()) {
+                createPeerConnection();
+
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+
+                socket.emit("call:offer", { to: remoteUserId, offer });
+            }
+        }
+
+        // ----------------- ESCUCHA DE SOCKETS (SEÑALIZACIÓN) -----------------
+
+        // Receptor: Recibe Offer y responde con Answer
+        socket.on("call:offer", async ({ from, offer }) => {
+            // Nos aseguramos de que la oferta sea del usuario que aceptamos.
+            if (from != remoteUserId) return;
+
+            console.log("📞 Recibí una OFERTA de:", from);
+
+            // El receptor ya inició su stream en el window.onload
+            createPeerConnection();
+
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+
+            // Crear y enviar la respuesta (Answer)
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+
+            // Usamos el socket: 'call:answer' (ya definido en index.js)
+            socket.emit("call:answer", { to: remoteUserId, answer });
+        });
+
+        // Llamador: Recibe Answer
+        socket.on("call:answer", async ({ answer }) => {
+            console.log("📩 Recibí respuesta (answer)");
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        });
+
+        // Ambos: Reciben ICE candidate
+        socket.on("call:ice-candidate", async ({ candidate }) => {
+            if (candidate && peerConnection) {
+                console.log("📡 Recibí ICE remoto");
+                try {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                } catch (e) {
+                    console.error("Error añadiendo ICE candidate:", e);
+                }
+            }
+        });
+
+
+        // ----------------- FUNCIÓN DE COLGAR -----------------
+
+        function endCall() {
+            console.log("🔚 Colgando llamada y limpiando recursos.");
+
+            // 1. Detener tracks de la cámara y micrófono
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+
+            // 2. Cerrar la conexión Peer
+            if (peerConnection) {
+                peerConnection.close();
+            }
+
+            // 3. Notificar al otro usuario que colgamos (opcional, pero útil)
+            // socket.emit('call:ended', { to: remoteUserId }); 
+
+            // 4. Limpiar la sesión y redirigir
+            sessionStorage.removeItem("remoteUserId");
+            sessionStorage.removeItem("isCaller");
+            window.location.href = '/chat';
+        }
+
+
+        // ----------------- INICIO DE LA PÁGINA -----------------
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!myId || !remoteUserId) {
+                alert("Error: No se encontró la información de la videollamada.");
+                window.location.href = '/chat';
+                return;
+            }
+
+            // 1. Conectar mi ID al socket para la señalización
+            socket.emit('user connected', myId);
+
+            // 2. Lógica de inicio de WebRTC
+            if (isCaller) {
+                // Si soy el llamador, inicio el proceso WebRTC (Offer)
+                startWebRTCCall();
+            } else {
+                // Si soy el receptor, solo inicio mi stream y espero el Offer
+                await startLocalStream();
+            }
+
+            // 3. Botón para colgar
+            endCallButton.addEventListener('click', endCall);
+        });
+
+        // Limpiar la llamada si el usuario sale o recarga la página
+        window.addEventListener('beforeunload', endCall);
+    </script>
+</body>
+
+</html>

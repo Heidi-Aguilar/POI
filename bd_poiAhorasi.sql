@@ -11,14 +11,12 @@ CREATE TABLE Usuario (
     apellidos VARCHAR(100) NOT NULL,
     fechaNacimiento DATE,
     correo VARCHAR(100) UNIQUE NOT NULL,
-    usuario VARCHAR(100) UNIQUE NOT NULL,
+    usuario VARCHAR(100) UNIQUE NOT NULL, -- Agregué UNIQUE para asegurar nombres de usuario únicos
     contrasena VARCHAR(255) NOT NULL,
-    foto LONGBLOB NULL,
-    activo BOOLEAN NOT NULL DEFAULT TRUE
+    foto LONGBLOB NULL, -- Puede ser nulo
+    -- 'activo' se usa para el estado de sesión (0 = Activo/Loggeado, 1 = Inactivo/Desloggeado)
+    activo BOOLEAN NOT NULL DEFAULT TRUE 
 );
-SELECT id_usuario, usuario, rol
-FROM Usuario;
-
 
 CREATE TABLE TipoChat (
     id_tipo_chat INT PRIMARY KEY AUTO_INCREMENT,
@@ -67,68 +65,6 @@ CREATE TABLE Archivo (
     FOREIGN KEY (id_mensaje) REFERENCES Mensaje(id_mensaje) ON DELETE CASCADE
 );
 
--- Equipos genéricos (puedes reutilizar para varias quinielas)
-CREATE TABLE Equipo (
-    id_equipo INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
-    pais VARCHAR(100) NULL,
-    abreviatura VARCHAR(10) NULL,
-    activo TINYINT(1) NOT NULL DEFAULT 1
-);
-
--- Tabla de quinielas
-CREATE TABLE Quiniela (
-    id_quiniela INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
-    descripcion VARCHAR(255) NULL,
-    fase VARCHAR(50) NOT NULL,               -- 'Fase de grupos', 'Octavos', etc.
-    fecha_inicio DATETIME NOT NULL,
-    fecha_fin DATETIME NULL,
-    estado ENUM('abierta','cerrada','finalizada') DEFAULT 'abierta',
-    creada_por INT NOT NULL,                 -- FK a Usuario (admin)
-    FOREIGN KEY (creada_por) REFERENCES Usuario(id_usuario)
-);
-
--- Relación quiniela - equipos que participan
-CREATE TABLE QuinielaEquipo (
-    id_quiniela INT NOT NULL,
-    id_equipo INT NOT NULL,
-    es_clasificado TINYINT(1) NOT NULL DEFAULT 0, -- lo marca el admin al final
-    PRIMARY KEY (id_quiniela, id_equipo),
-    FOREIGN KEY (id_quiniela) REFERENCES Quiniela(id_quiniela) ON DELETE CASCADE,
-    FOREIGN KEY (id_equipo) REFERENCES Equipo(id_equipo)
-);
-
--- Predicción del usuario (encabezado)
-CREATE TABLE Prediccion (
-    id_prediccion INT PRIMARY KEY AUTO_INCREMENT,
-    id_quiniela INT NOT NULL,
-    id_usuario INT NOT NULL,
-    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_prediccion_usuario_quiniela (id_quiniela, id_usuario), -- una vez por quiniela
-    FOREIGN KEY (id_quiniela) REFERENCES Quiniela(id_quiniela) ON DELETE CASCADE,
-    FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario) ON DELETE CASCADE
-);
-
--- Detalle de la predicción (equipos que el usuario dijo que pasan)
-CREATE TABLE PrediccionDetalle (
-    id_prediccion INT NOT NULL,
-    id_equipo INT NOT NULL,
-    PRIMARY KEY (id_prediccion, id_equipo),
-    FOREIGN KEY (id_prediccion) REFERENCES Prediccion(id_prediccion) ON DELETE CASCADE,
-    FOREIGN KEY (id_equipo) REFERENCES Equipo(id_equipo)
-);
-
--- Recompensas / insignias en el perfil
-CREATE TABLE UsuarioInsignia (
-    id_usuario INT NOT NULL,
-    tipo_insignia VARCHAR(50) NOT NULL,    -- ejemplo: 'quiniela_ganada'
-    icono VARCHAR(100) NOT NULL,           -- nombre del icono o ruta
-    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id_usuario, tipo_insignia),
-    FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario) ON DELETE CASCADE
-);
-
 INSERT INTO TipoChat (id_tipo_chat, nombre) VALUES (1, 'General');
 INSERT INTO TipoChat (id_tipo_chat, nombre) VALUES (2, 'Privado');
 INSERT INTO TipoChat (id_tipo_chat, nombre) VALUES (3, 'Grupo');
@@ -147,14 +83,3 @@ VALUES (1, 1, 'Chat General', 'Chat público para todos los usuarios conectados.
 -- Asignar al usuario inicial al chat general
 INSERT INTO ChatUsuario (id_chat, id_usuario)
 VALUES (1, 1);
-
-UPDATE Usuario 
-SET rol = 1
-WHERE id_usuario = 2;
-
-
-SELECT * FROM Usuario;
-SELECT * FROM TipoChat;
-SELECT * FROM Chat;
-SELECT * FROM ChatUsuario;
-SELECT * FROM Mensaje;
